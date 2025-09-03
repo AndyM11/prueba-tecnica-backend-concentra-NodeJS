@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Fabricante {
+  id        Int        @id @default(autoincrement())
+  nombre    String     @unique
+  Articulos Articulo[]
+}
+
+model Articulo {
+  id           Int          @id @default(autoincrement())
+  codigoBarras String       @unique
+  descripcion  String?
+  fabricanteId Int
+  stock        Int          @default(0)
+  Fabricante   Fabricante   @relation(fields: [fabricanteId], references: [id])
+  Colocaciones Colocacion[]
+}
+
+model Ubicacion {
+  id           Int          @id @default(autoincrement())
+  nombre       String       @unique
+  Colocaciones Colocacion[]
+}
+
+model Colocacion {
+  id             Int       @id @default(autoincrement())
+  articuloId     Int
+  ubicacionId    Int
+  nombreExhibido String
+  precio         Decimal   @db.Decimal(12, 2)
+  Articulo       Articulo  @relation(fields: [articuloId], references: [id])
+  Ubicacion      Ubicacion @relation(fields: [ubicacionId], references: [id])
+  Compras        Compra[]
+
+  @@unique([articuloId, ubicacionId])
+}
+
+model Cliente {
+  id          Int      @id @default(autoincrement())
+  nombre      String
+  telefono    String   @unique
+  tipoCliente String
+  Compras     Compra[]
+}
+
+model Compra {
+  id           Int        @id @default(autoincrement())
+  clienteId    Int
+  colocacionId Int
+  unidades     Int
+  Cliente      Cliente    @relation(fields: [clienteId], references: [id])
+  Colocacion   Colocacion @relation(fields: [colocacionId], references: [id])
+
+  @@unique([clienteId, colocacionId])
+}
+
+model Usuario {
+  id           Int       @id @default(autoincrement())
+  username     String    @unique
+  passwordHash String
+  rol          String
+  empleadoId   Int?
+  Empleado     Empleado? @relation(fields: [empleadoId], references: [id])
+}
+
+model Empleado {
+  id         Int       @id @default(autoincrement())
+  nombres    String
+  apellidos  String
+  cedula     String    @unique
+  telefono   String
+  tipoSangre String
+  email      String    @unique
+  Usuarios   Usuario[]
+}
