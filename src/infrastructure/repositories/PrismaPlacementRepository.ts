@@ -16,12 +16,25 @@ export class PrismaPlacementRepository implements PlacementRepository {
     }
 
     async create(data: Omit<Placement, 'id'>): Promise<Placement> {
-        const p = await prisma.colocacion.create({ data });
+        // Mapear campos de inglés a español para la base de datos
+        const dbData = {
+            articuloId: data.articleId,
+            ubicacionId: data.locationId,
+            nombreExhibido: data.displayName,
+            precio: data.price
+        };
+        const p = await prisma.colocacion.create({ data: dbData });
         return new Placement(p.id, p.articuloId, p.ubicacionId, p.nombreExhibido, Number(p.precio));
     }
 
     async update(id: number, data: Partial<Omit<Placement, 'id'>>): Promise<Placement | null> {
-        const p = await prisma.colocacion.update({ where: { id }, data });
+        // Mapear campos de inglés a español para la base de datos
+        const dbData: any = {};
+        if (typeof data.articleId !== 'undefined') dbData.articuloId = data.articleId;
+        if (typeof data.locationId !== 'undefined') dbData.ubicacionId = data.locationId;
+        if (typeof data.displayName !== 'undefined') dbData.nombreExhibido = data.displayName;
+        if (typeof data.price !== 'undefined') dbData.precio = data.price;
+        const p = await prisma.colocacion.update({ where: { id }, data: dbData });
         return p ? new Placement(p.id, p.articuloId, p.ubicacionId, p.nombreExhibido, Number(p.precio)) : null;
     }
 
@@ -31,18 +44,18 @@ export class PrismaPlacementRepository implements PlacementRepository {
 
     async findByFilter(options: any = {}): Promise<{ total: number; data: Placement[]; page: number; per_page: number }> {
         const {
-            articuloId,
-            ubicacionId,
-            nombreExhibido,
-            precio,
+            articleId,
+            locationId,
+            displayName,
+            price,
             page = 1,
             per_page = 10
         } = options;
         const where: any = {};
-        if (articuloId) where.articuloId = articuloId;
-        if (ubicacionId) where.ubicacionId = ubicacionId;
-        if (nombreExhibido) where.nombreExhibido = { contains: nombreExhibido };
-        if (precio) where.precio = precio;
+        if (articleId) where.articuloId = articleId;
+        if (locationId) where.ubicacionId = locationId;
+        if (displayName) where.nombreExhibido = { contains: displayName };
+        if (price) where.precio = price;
         const total = await prisma.colocacion.count({ where });
         const data = await prisma.colocacion.findMany({
             where,

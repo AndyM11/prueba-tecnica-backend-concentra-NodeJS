@@ -89,12 +89,12 @@ export const swaggerSchemas = {
         type: 'object',
         properties: {
             id: { type: 'integer' },
-            articuloId: { type: 'integer' },
-            ubicacionId: { type: 'integer' },
-            nombreExhibido: { type: 'string' },
-            precio: { type: 'number' }
+            articleId: { type: 'integer' },
+            locationId: { type: 'integer' },
+            displayName: { type: 'string' },
+            price: { type: 'number' }
         },
-        required: ['articuloId', 'ubicacionId', 'nombreExhibido', 'precio']
+        required: ['articleId', 'locationId', 'displayName', 'price']
     },
     ClientInputSchema,
     ClientOutputSchema,

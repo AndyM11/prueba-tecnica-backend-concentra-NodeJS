@@ -15,20 +15,20 @@ export const updatePlacementUseCase = new UpdatePlacementUseCase(placementRepo);
 export const deletePlacementUseCase = new DeletePlacementUseCase(placementRepo);
 
 const placementSchema = z.object({
-    articuloId: z.number(),
-    ubicacionId: z.number(),
-    nombreExhibido: z.string().min(3, 'El nombre exhibido es obligatorio'),
-    precio: z.number().min(1, 'El precio debe ser mayor o igual a 1')
+    articleId: z.number(),
+    locationId: z.number(),
+    displayName: z.string().min(3, 'Display name is required'),
+    price: z.number().min(1, 'Price must be at least 1')
 });
 
 export const getPlacements = async (req: Request, res: Response) => {
     try {
-        const { articuloId, ubicacionId, nombreExhibido, precio, page, per_page } = req.query;
+        const { articleId, locationId, displayName, price, page, per_page } = req.query;
         const options: any = {};
-        if (articuloId) options.articuloId = Number(articuloId);
-        if (ubicacionId) options.ubicacionId = Number(ubicacionId);
-        if (nombreExhibido) options.nombreExhibido = String(nombreExhibido);
-        if (precio) options.precio = Number(precio);
+        if (articleId) options.articleId = Number(articleId);
+        if (locationId) options.locationId = Number(locationId);
+        if (displayName) options.displayName = String(displayName);
+        if (price) options.price = Number(price);
         if (page) options.page = Number(page);
         if (per_page) options.per_page = Number(per_page);
         const result = await getAllPlacementsUseCase.execute(Object.keys(options).length ? options : undefined);

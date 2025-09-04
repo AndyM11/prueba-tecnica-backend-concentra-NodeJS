@@ -17,22 +17,22 @@ const router = Router();
  *       - Placements
  *     summary: Listar todas las colocaciones
  *     parameters:
- *       - name: articuloId
+ *       - name: articleId
  *         in: query
  *         required: false
  *         schema:
  *           type: integer
- *       - name: ubicacionId
+ *       - name: locationId
  *         in: query
  *         required: false
  *         schema:
  *           type: integer
- *       - name: nombreExhibido
+ *       - name: displayName
  *         in: query
  *         required: false
  *         schema:
  *           type: string
- *       - name: precio
+ *       - name: price
  *         in: query
  *         required: false
  *         schema:

@@ -3,10 +3,10 @@ import { PlacementRepository } from '../../repositories/PlacementRepository';
 export class GetAllPlacementsUseCase {
     constructor(private repo: PlacementRepository) { }
     async execute(options?: {
-        articuloId?: number;
-        ubicacionId?: number;
-        nombreExhibido?: string;
-        precio?: number;
+        articleId?: number;
+        locationId?: number;
+        displayName?: string;
+        price?: number;
         page?: number;
         per_page?: number;
     }) {
