@@ -3,6 +3,8 @@ import app from '../../src/app';
 import { any } from 'zod';
 
 describe('Article Controller (integration)', () => {
+    // Sufijo único para cada ejecución
+    const uniqueSuffix = Date.now();
     // Prueba: Listar todos los artículos
     it('should return 200 and a list of articles', async () => {
         const res = await request(app)
@@ -14,7 +16,9 @@ describe('Article Controller (integration)', () => {
 
     // Prueba: Filtrar por descripción
     it('should filter articles by description', async () => {
-        const uniqueBarcode = `FILTRODESC${Date.now()}`;
+        const uniqueBarcode = `FILTRODESC_${uniqueSuffix}`;
+        // Eliminar si existe previamente
+        await request(app).delete(`/api/v1/article/barcode/${uniqueBarcode}`);
         await request(app).post('/api/v1/article/create').send({ barcode: uniqueBarcode, manufacturerId: 1, description: 'FiltroTest' });
         const res = await request(app)
             .get('/api/v1/article?description=FiltroTest')
@@ -25,7 +29,8 @@ describe('Article Controller (integration)', () => {
 
     // Prueba: Filtrar por manufacturerId
     it('should filter articles by manufacturerId', async () => {
-        const uniqueBarcode = `FILTROMANU${Date.now()}`;
+        const uniqueBarcode = `FILTROMANU_${uniqueSuffix}`;
+        await request(app).delete(`/api/v1/article/barcode/${uniqueBarcode}`);
         await request(app).post('/api/v1/article/create').send({ barcode: uniqueBarcode, manufacturerId: 1 });
         const res = await request(app)
             .get('/api/v1/article?manufacturerId=1')
@@ -36,7 +41,8 @@ describe('Article Controller (integration)', () => {
 
     // Prueba: Filtrar por barcode
     it('should filter articles by barcode', async () => {
-        const uniqueBarcode = `FILTROBAR${Date.now()}`;
+        const uniqueBarcode = `FILTROBAR_${uniqueSuffix}`;
+        await request(app).delete(`/api/v1/article/barcode/${uniqueBarcode}`);
         await request(app).post('/api/v1/article/create').send({ barcode: uniqueBarcode, manufacturerId: 1 });
         const res = await request(app)
             .get('/api/v1/article?barcode=FILTROBAR')
@@ -47,7 +53,8 @@ describe('Article Controller (integration)', () => {
 
     // Prueba: Filtrar por stock
     it('should filter articles by stock', async () => {
-        const uniqueBarcode = `FILTROSTOCK${Date.now()}`;
+        const uniqueBarcode = `FILTROSTOCK_${uniqueSuffix}`;
+        await request(app).delete(`/api/v1/article/barcode/${uniqueBarcode}`);
         await request(app).post('/api/v1/article/create').send({ barcode: uniqueBarcode, manufacturerId: 1, stock: 99 });
         const res = await request(app)
             .get('/api/v1/article?stock=99')

@@ -14,27 +14,27 @@ const router = Router();
  * /api/v1/article:
  *   get:
  *     tags:
- *       - Articles
- *     summary: List articles (with filter and pagination)
+ *        - Articles
+ *     summary: Listar artículos (con filtro y paginación)
  *     parameters:
- *       - name: description
+ *       - name: descripcion
  *         in: query
  *         required: false
  *         schema:
  *           type: string
- *         description: Filter by partial description (optional)
- *       - name: barcode
+ *         description: Filtrar por descripción parcial (opcional)
+ *       - name: codigoBarras
  *         in: query
  *         required: false
  *         schema:
  *           type: string
- *         description: Filter by partial barcode (optional)
- *       - name: manufacturerId
+ *         description: Filtrar por código de barras parcial (opcional)
+ *       - name: fabricanteId
  *         in: query
  *         required: false
  *         schema:
  *           type: integer
- *         description: Manufacturer ID (optional)
+ *         description: ID del fabricante (opcional)
  *       - name: page
  *         in: query
  *         required: false
@@ -49,7 +49,7 @@ const router = Router();
  *         description: Results per page (optional)
  *     responses:
  *       200:
- *         description: Paginated list of articles
+ *         description: Lista paginada de artículos
  *         content:
  *           application/json:
  *             schema:
@@ -64,21 +64,21 @@ router.get('/', getArticles);
  * /api/v1/article/create:
  *   post:
  *     tags:
- *       - Articles
- *     summary: Create article
+ *        - Articles
+ *     summary: Crear artículo
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Article'
+ *             $ref: '#/components/schemas/ArticleInput'
  *     responses:
  *       201:
- *         description: Article created
+ *         description: Artículo creado
  *       400:
- *         description: Invalid data
+ *         description: Datos inválidos
  *       409:
- *         description: Article already exists
+ *         description: El artículo ya existe
  */
 router.post('/create', createArticle);
 
@@ -87,8 +87,8 @@ router.post('/create', createArticle);
  * /api/v1/article/getById/{id}:
  *   get:
  *     tags:
- *       - Articles
- *     summary: Get article by ID
+ *        - Articles
+ *     summary: Obtener artículo por ID
  *     parameters:
  *       - name: id
  *         in: path
@@ -97,9 +97,9 @@ router.post('/create', createArticle);
  *           type: integer
  *     responses:
  *       200:
- *         description: Article found
+ *         description: Artículo encontrado
  *       404:
- *         description: Not found
+ *         description: No encontrado
  */
 router.get('/getById/:id', getArticleById);
 
@@ -108,8 +108,8 @@ router.get('/getById/:id', getArticleById);
  * /api/v1/article/update/{id}:
  *   put:
  *     tags:
- *       - Articles
- *     summary: Update article
+ *        - Articles
+ *     summary: Actualizar artículo
  *     parameters:
  *       - name: id
  *         in: path
@@ -124,9 +124,9 @@ router.get('/getById/:id', getArticleById);
  *             $ref: '#/components/schemas/Article'
  *     responses:
  *       200:
- *         description: Article updated
+ *         description: Artículo actualizado
  *       404:
- *         description: Not found
+ *         description: No encontrado
  */
 router.put('/update/:id', updateArticle);
 
@@ -135,8 +135,8 @@ router.put('/update/:id', updateArticle);
  * /api/v1/article/delete/{id}:
  *   delete:
  *     tags:
- *       - Articles
- *     summary: Delete article
+ *        - Articles
+ *     summary: Eliminar artículo
  *     parameters:
  *       - name: id
  *         in: path
@@ -145,9 +145,9 @@ router.put('/update/:id', updateArticle);
  *           type: integer
  *     responses:
  *       204:
- *         description: Article deleted
+ *         description: Artículo eliminado
  *       404:
- *         description: Not found
+ *         description: No encontrado
  */
 router.delete('/delete/:id', deleteArticle);
 

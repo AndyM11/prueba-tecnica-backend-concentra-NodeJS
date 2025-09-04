@@ -3,9 +3,13 @@ import app from '../../src/app';
 
 describe('LocationController Integration', () => {
     let createdId: number;
+    // Sufijo único para cada ejecución
+    const uniqueSuffix = Date.now();
 
     it('POST /api/v1/location debe crear una ubicación', async () => {
-        const uniqueName = `Ubicación Integración ${Date.now()}`;
+        const uniqueName = `UbicaciónIntegración_${uniqueSuffix}`;
+        // Eliminar si existe previamente
+        await request(app).delete(`/api/v1/location/name/${uniqueName}`);
         const res = await request(app)
             .post('/api/v1/location')
             .send({ name: uniqueName });

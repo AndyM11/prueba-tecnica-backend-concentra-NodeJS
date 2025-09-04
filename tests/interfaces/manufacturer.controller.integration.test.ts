@@ -2,6 +2,8 @@ import request from 'supertest';
 import app from '../../src/app';
 
 describe('Manufacturer Controller - Integración', () => {
+    // Sufijo único para cada ejecución
+    const uniqueSuffix = Date.now();
     it('GET /api/v1/manufacturer debe devolver 200 y un array paginado', async () => {
         const res = await request(app).get('/api/v1/manufacturer');
         expect(res.status).toBe(200);
@@ -18,7 +20,9 @@ describe('Manufacturer Controller - Integración', () => {
     });
 
     it('POST /api/v1/manufacturer/create debe crear un fabricante válido', async () => {
-        const uniqueName = `FabricanteTest${Date.now()}`;
+        const uniqueName = `FabricanteTest_${uniqueSuffix}`;
+        // Eliminar si existe previamente
+        await request(app).delete(`/api/v1/manufacturer/name/${uniqueName}`);
         const res = await request(app)
             .post('/api/v1/manufacturer/create')
             .send({ name: uniqueName });
@@ -32,7 +36,9 @@ describe('Manufacturer Controller - Integración', () => {
     });
 
     it('POST /api/v1/manufacturer/create debe devolver 409 si el nombre está duplicado', async () => {
-        const name = `Duplicado${Date.now()}`;
+        const name = `Duplicado_${uniqueSuffix}`;
+        // Eliminar si existe previamente
+        await request(app).delete(`/api/v1/manufacturer/name/${name}`);
         await request(app)
             .post('/api/v1/manufacturer/create')
             .send({ name });

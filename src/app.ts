@@ -2,6 +2,7 @@ import express from 'express';
 import manufacturerRoutes from './interfaces/routes/manufacturer.routes';
 import articleRoutes from './interfaces/routes/article.routes';
 import locationRoutes from './interfaces/routes/location.routes';
+import placementRoutes from './interfaces/routes/placement.routes';
 import { swaggerSchemas } from './infrastructure/swaggerSchemas';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -45,6 +46,7 @@ app.use(json());
 app.use('/api/v1/manufacturer', manufacturerRoutes);
 app.use('/api/v1/article', articleRoutes);
 app.use('/api/v1/location', locationRoutes);
+app.use('/api/v1/placement', placementRoutes);
 
 // Rutas base (puedes importar tus rutas aquí)
 app.get('/', (req, res) => {

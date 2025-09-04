@@ -10,7 +10,7 @@ describe('errorHandler middleware', () => {
         const err = { type: 'BARCODE_DUPLICATE' };
         errorHandler(err, req, res, next);
         expect(res.status).toHaveBeenCalledWith(409);
-        expect(res.json).toHaveBeenCalledWith({ error: 'Barcode already exists' });
+        expect(res.json).toHaveBeenCalledWith({ error: 'El código de barras ya existe' });
     });
 
     it('debe devolver 400 para MANUFACTURER_NOT_FOUND', () => {
@@ -18,7 +18,7 @@ describe('errorHandler middleware', () => {
         const err = { type: 'MANUFACTURER_NOT_FOUND' };
         errorHandler(err, req, res, next);
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: 'Manufacturer does not exist' });
+        expect(res.json).toHaveBeenCalledWith({ error: 'El fabricante no existe' });
     });
 
     it('debe devolver 409 para P2002 (duplicado)', () => {
@@ -42,7 +42,7 @@ describe('errorHandler middleware', () => {
         const err = { code: 'P2003', meta: { modelName: 'Articulo' } };
         errorHandler(err, req, res, next);
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: 'Foreign key constraint violated: manufacturer does not exist or is invalid', details: err.meta });
+        expect(res.json).toHaveBeenCalledWith({ error: 'Violación de restricción de clave foránea: el fabricante no existe o es inválido', details: err.meta });
     });
 
     it('debe devolver 500 para error genérico', () => {
