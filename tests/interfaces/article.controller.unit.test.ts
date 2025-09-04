@@ -11,18 +11,19 @@ describe('Article Controller (unit)', () => {
             const next = jest.fn();
             await controller.createArticle(req, res, next);
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ error: 'Invalid data' }));
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ error: 'Datos inválidos' }));
         });
         // Debe devolver 201 si el body es válido y el artículo se crea correctamente
         it('should return 201 if body is valid', async () => {
-            const req = { body: { barcode: '12345', manufacturerId: 1 } } as any;
+            const uniqueBarcode = `BAR${Date.now()}`;
+            const req = { body: { barcode: uniqueBarcode, manufacturerId: 1 } } as any;
             const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as any;
             const next = jest.fn();
             // Simula que el usecase retorna el artículo creado
-            jest.spyOn(controller.createArticleUseCase, 'execute').mockResolvedValue({ id: 1, barcode: '12345', manufacturerId: 1, stock: 0 });
+            jest.spyOn(controller.createArticleUseCase, 'execute').mockResolvedValue({ id: 1, barcode: uniqueBarcode, manufacturerId: 1, stock: 0 });
             await controller.createArticle(req, res, next);
             expect(res.status).toHaveBeenCalledWith(201);
-            expect(res.json).toHaveBeenCalledWith({ id: 1, barcode: '12345', manufacturerId: 1, stock: 0 });
+            expect(res.json).toHaveBeenCalledWith({ id: 1, barcode: uniqueBarcode, manufacturerId: 1, stock: 0 });
         });
     });
 
@@ -43,6 +44,7 @@ describe('Article Controller (unit)', () => {
             jest.spyOn(controller.getArticleByIdUseCase, 'execute').mockResolvedValue(null);
             await controller.getArticleById(req, res);
             expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ error: 'Artículo no encontrado' }));
         });
     });
 });

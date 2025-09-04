@@ -7,19 +7,22 @@ import { DeleteArticleUseCase } from '../../domain/usecases/Article/DeleteArticl
 import { Request, Response } from 'express';
 import { z } from 'zod';
 
+
 const articleRepo = new PrismaArticleRepository();
-export const getAllArticlesUseCase = new GetAllArticlesUseCase(articleRepo); // Solo exportar para pruebas unitarias
-export const createArticleUseCase = new CreateArticleUseCase(articleRepo); // Solo exportar para pruebas unitarias
-export const getArticleByIdUseCase = new GetArticleByIdUseCase(articleRepo); // Solo exportar para pruebas unitarias
-export const updateArticleUseCase = new UpdateArticleUseCase(articleRepo); // Solo exportar para pruebas unitarias
-export const deleteArticleUseCase = new DeleteArticleUseCase(articleRepo); // Solo exportar para pruebas unitarias
+export const getAllArticlesUseCase = new GetAllArticlesUseCase(articleRepo); // Exportado solo para pruebas unitarias
+export const createArticleUseCase = new CreateArticleUseCase(articleRepo); // Exportado solo para pruebas unitarias
+export const getArticleByIdUseCase = new GetArticleByIdUseCase(articleRepo); // Exportado solo para pruebas unitarias
+export const updateArticleUseCase = new UpdateArticleUseCase(articleRepo); // Exportado solo para pruebas unitarias
+export const deleteArticleUseCase = new DeleteArticleUseCase(articleRepo); // Exportado solo para pruebas unitarias
+
 
 const articleSchema = z.object({
-    barcode: z.string().min(5, 'Barcode must have at least 5 characters'),
+    barcode: z.string().min(5, 'El código de barras debe tener al menos 5 caracteres'),
     description: z.string().optional(),
     manufacturerId: z.number(),
     stock: z.number().int().min(0).optional(),
 });
+
 
 export const getArticles = async (req: Request, res: Response) => {
     try {
@@ -34,7 +37,7 @@ export const getArticles = async (req: Request, res: Response) => {
         const result = await getAllArticlesUseCase.execute(Object.keys(options).length ? options : undefined);
         res.json(result);
     } catch (error) {
-        res.status(500).json({ error: 'Error getting articles', details: error instanceof Error ? error.message : error });
+        res.status(500).json({ error: 'Error al obtener los artículos', details: error instanceof Error ? error.message : error });
     }
 };
 
@@ -42,7 +45,7 @@ export const createArticle = async (req: Request, res: Response, next: Function)
     try {
         const parse = articleSchema.safeParse(req.body);
         if (!parse.success) {
-            return res.status(400).json({ error: 'Invalid data', details: parse.error.issues });
+            return res.status(400).json({ error: 'Datos inválidos', details: parse.error.issues });
         }
         const article = await createArticleUseCase.execute(parse.data);
         res.status(201).json(article);
@@ -55,13 +58,13 @@ export const getArticleById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         if (!id || isNaN(Number(id))) {
-            return res.status(400).json({ error: 'Invalid article ID' });
+            return res.status(400).json({ error: 'ID de artículo inválido' });
         }
         const article = await getArticleByIdUseCase.execute(Number(id));
-        if (!article) return res.status(404).json({ error: 'Article not found' });
+        if (!article) return res.status(404).json({ error: 'Artículo no encontrado' });
         res.json(article);
     } catch (error) {
-        res.status(500).json({ error: 'Error getting article', details: error instanceof Error ? error.message : error });
+        res.status(500).json({ error: 'Error al obtener el artículo', details: error instanceof Error ? error.message : error });
     }
 };
 
@@ -69,11 +72,11 @@ export const updateArticle = async (req: Request, res: Response, next: Function)
     try {
         const { id } = req.params;
         if (!id || isNaN(Number(id))) {
-            return res.status(400).json({ error: 'Invalid article ID' });
+            return res.status(400).json({ error: 'ID de artículo inválido' });
         }
         const parse = articleSchema.safeParse(req.body);
         if (!parse.success) {
-            return res.status(400).json({ error: 'Invalid data', details: parse.error.issues });
+            return res.status(400).json({ error: 'Datos inválidos', details: parse.error.issues });
         }
         const article = await updateArticleUseCase.execute(Number(id), parse.data);
         res.json(article);
@@ -86,7 +89,7 @@ export const deleteArticle = async (req: Request, res: Response, next: Function)
     try {
         const { id } = req.params;
         if (!id || isNaN(Number(id))) {
-            return res.status(400).json({ error: 'Invalid article ID' });
+            return res.status(400).json({ error: 'ID de artículo inválido' });
         }
         await deleteArticleUseCase.execute(Number(id));
         res.status(204).send();

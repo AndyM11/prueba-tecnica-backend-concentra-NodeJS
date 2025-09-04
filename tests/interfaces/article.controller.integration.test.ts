@@ -14,7 +14,8 @@ describe('Article Controller (integration)', () => {
 
     // Prueba: Filtrar por descripción
     it('should filter articles by description', async () => {
-        await request(app).post('/api/v1/article/create').send({ barcode: 'FILTRODESC', manufacturerId: 1, description: 'FiltroTest' });
+        const uniqueBarcode = `FILTRODESC${Date.now()}`;
+        await request(app).post('/api/v1/article/create').send({ barcode: uniqueBarcode, manufacturerId: 1, description: 'FiltroTest' });
         const res = await request(app)
             .get('/api/v1/article?description=FiltroTest')
             .send();
@@ -24,7 +25,8 @@ describe('Article Controller (integration)', () => {
 
     // Prueba: Filtrar por manufacturerId
     it('should filter articles by manufacturerId', async () => {
-        await request(app).post('/api/v1/article/create').send({ barcode: 'FILTROMANU', manufacturerId: 1 });
+        const uniqueBarcode = `FILTROMANU${Date.now()}`;
+        await request(app).post('/api/v1/article/create').send({ barcode: uniqueBarcode, manufacturerId: 1 });
         const res = await request(app)
             .get('/api/v1/article?manufacturerId=1')
             .send();
@@ -34,7 +36,8 @@ describe('Article Controller (integration)', () => {
 
     // Prueba: Filtrar por barcode
     it('should filter articles by barcode', async () => {
-        await request(app).post('/api/v1/article/create').send({ barcode: 'FILTROBAR', manufacturerId: 1 });
+        const uniqueBarcode = `FILTROBAR${Date.now()}`;
+        await request(app).post('/api/v1/article/create').send({ barcode: uniqueBarcode, manufacturerId: 1 });
         const res = await request(app)
             .get('/api/v1/article?barcode=FILTROBAR')
             .send();
@@ -44,7 +47,8 @@ describe('Article Controller (integration)', () => {
 
     // Prueba: Filtrar por stock
     it('should filter articles by stock', async () => {
-        await request(app).post('/api/v1/article/create').send({ barcode: 'FILTROSTOCK', manufacturerId: 1, stock: 99 });
+        const uniqueBarcode = `FILTROSTOCK${Date.now()}`;
+        await request(app).post('/api/v1/article/create').send({ barcode: uniqueBarcode, manufacturerId: 1, stock: 99 });
         const res = await request(app)
             .get('/api/v1/article?stock=99')
             .send();
@@ -56,7 +60,8 @@ describe('Article Controller (integration)', () => {
     it('should paginate articles', async () => {
         // Crear varios artículos para paginar
         for (let i = 0; i < 5; i++) {
-            await request(app).post('/api/v1/article/create').send({ barcode: `PAGE${i}BAR`, manufacturerId: 1 });
+            const uniqueBarcode = `PAGE${i}BAR${Date.now()}`;
+            await request(app).post('/api/v1/article/create').send({ barcode: uniqueBarcode, manufacturerId: 1 });
         }
         const res = await request(app)
             .get('/api/v1/article?page=1&per_page=2')
@@ -67,7 +72,8 @@ describe('Article Controller (integration)', () => {
 
     // Prueba: Combinación de filtros y paginación
     it('should filter and paginate articles', async () => {
-        await request(app).post('/api/v1/article/create').send({ barcode: 'COMBOFILTRO', manufacturerId: 1, stock: 5, description: 'ComboDesc' });
+        const uniqueBarcode = `COMBOFILTRO${Date.now()}`;
+        await request(app).post('/api/v1/article/create').send({ barcode: uniqueBarcode, manufacturerId: 1, stock: 5, description: 'ComboDesc' });
         const res = await request(app)
             .get('/api/v1/article?description=ComboDesc&stock=5&page=1&per_page=1')
             .send();
@@ -220,7 +226,7 @@ describe('Article Controller (integration)', () => {
             .send({ barcode: '99999', manufacturerId: 999999 });
         expect(res.status).toBe(400);
         expect(res.body).toHaveProperty('error');
-        expect(res.body.error).toMatch(/Foreign key constraint violated/);
+        expect(res.body.error).toMatch(/Violación de restricción de clave foránea/);
     });
 
     // Prueba: id inválido en getById

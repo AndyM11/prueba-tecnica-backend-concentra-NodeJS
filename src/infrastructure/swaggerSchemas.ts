@@ -17,5 +17,13 @@ export const swaggerSchemas = {
             nombre: { type: 'string' }
         },
         required: ['nombre']
+    },
+    Location: {
+        type: 'object',
+        properties: {
+            id: { type: 'integer' },
+            name: { type: 'string' }
+        },
+        required: ['name']
     }
 };
