@@ -1,3 +1,53 @@
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 1
+ *         username:
+ *           type: string
+ *           example: "usuario123"
+ *         passwordHash:
+ *           type: string
+ *           description: "Hash de la contraseña"
+ *         rol:
+ *           type: string
+ *           enum: [ADMIN, USER]
+ *           example: "USER"
+ *         employeeId:
+ *           type: integer
+ *           nullable: true
+ *           example: 5
+ *     UserInput:
+ *       type: object
+ *       required:
+ *         - username
+ *         - password
+ *         - rol
+ *       properties:
+ *         username:
+ *           type: string
+ *           minLength: 3
+ *           example: "usuario123"
+ *         password:
+ *           type: string
+ *           minLength: 10
+ *           description: |
+ *             Contraseña con robustez mínima: longitud ≥ 10, al menos 1 mayúscula, 1 minúscula, 1 dígito y 1 caracter especial.
+ *           example: "Password123!"
+ *         rol:
+ *           type: string
+ *           enum: [ADMIN, USER]
+ *           example: "USER"
+ *         employeeId:
+ *           type: integer
+ *           nullable: true
+ *           example: 5
+ */
 // Esquema Swagger para Buy
 const BuyInputSchema = {
     type: 'object',

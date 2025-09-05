@@ -13,3 +13,8 @@ export enum BloodType {
     O_POS = 'O+',
     O_NEG = 'O-'
 }
+
+export enum UserRole {
+    ADMIN = 'admin',
+    USER = 'user'
+}

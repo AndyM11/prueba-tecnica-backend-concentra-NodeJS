@@ -6,6 +6,7 @@ import placementRoutes from './interfaces/routes/placement.routes';
 import clientRoutes from './interfaces/routes/client.routes';
 import buyRoutes from './interfaces/routes/buy.routes';
 import employeeRoutes from './interfaces/routes/employee.routes';
+import userRoutes from './interfaces/routes/user.routes';
 import { swaggerSchemas } from './infrastructure/swaggerSchemas';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -58,6 +59,7 @@ app.use('/api/v1/placement', placementRoutes);
 app.use('/api/v1/client', clientRoutes);
 app.use('/api/v1/buy', buyRoutes);
 app.use('/api/v1/employee', employeeRoutes);
+app.use('/api/v1/user', userRoutes);
 
 // Rutas base (puedes importar tus rutas aquí)
 app.get('/', (req, res) => {
