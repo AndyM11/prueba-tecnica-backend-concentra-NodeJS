@@ -1,4 +1,4 @@
-import { ClientType } from './ClientType';
+import { ClientType } from './Types';
 
 export { ClientType };
 

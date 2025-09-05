@@ -17,8 +17,12 @@ describe('PrismaPlacementRepository', () => {
         await prisma.colocacion.deleteMany({ where: { ubicacionId: locationId } });
         await prisma.articulo.deleteMany({ where: { codigoBarras: testBarcode } });
         await prisma.ubicacion.deleteMany({ where: { nombre: testLocation } });
+        await prisma.fabricante.deleteMany({ where: { nombre: `FabricanteTest_${uniqueSuffix}` } });
+        // Crear fabricante válido y obtener su ID
+        const fabricante = await prisma.fabricante.create({ data: { nombre: `FabricanteTest_${uniqueSuffix}` } });
+        const fabricanteId = fabricante.id;
         // Crear artículo y ubicación válidos
-        const articulo = await prisma.articulo.create({ data: { codigoBarras: testBarcode, fabricanteId: 1 } });
+        const articulo = await prisma.articulo.create({ data: { codigoBarras: testBarcode, fabricanteId } });
         articleId = articulo.id;
         const ubicacion = await prisma.ubicacion.create({ data: { nombre: testLocation } });
         locationId = ubicacion.id;

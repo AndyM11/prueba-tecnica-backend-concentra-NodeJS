@@ -8,7 +8,7 @@ describe('createManufacturer (unit)', () => {
     });
 
     // Prueba: body inválido (name vacío)
-    it('debería devolver 400 si el body es inválido', async () => {
+    it('should return 400 if body is invalid', async () => {
         const req = { body: { name: '' } } as Request;
         const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as any;
         const next = jest.fn();
@@ -18,7 +18,7 @@ describe('createManufacturer (unit)', () => {
     });
 
     // Prueba: body válido (crea fabricante correctamente)
-    it('debería devolver 201 si el body es válido', async () => {
+    it('should return 201 if body is valid', async () => {
         const req = { body: { name: 'Fabricante X' } } as Request;
         const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as any;
         const next = jest.fn();

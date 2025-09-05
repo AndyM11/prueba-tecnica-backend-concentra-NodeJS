@@ -6,7 +6,7 @@ describe('LocationController Integration', () => {
     // Sufijo único para cada ejecución
     const uniqueSuffix = Date.now();
 
-    it('POST /api/v1/location debe crear una ubicación', async () => {
+    it('POST /api/v1/location should create a location', async () => {
         const uniqueName = `UbicaciónIntegración_${uniqueSuffix}`;
         // Eliminar si existe previamente
         await request(app).delete(`/api/v1/location/name/${uniqueName}`);
@@ -19,19 +19,19 @@ describe('LocationController Integration', () => {
         createdId = res.body.id;
     });
 
-    it('GET /api/v1/location debe listar ubicaciones', async () => {
+    it('GET /api/v1/location should list locations', async () => {
         const res = await request(app).get('/api/v1/location');
         expect(res.status).toBe(200);
         expect(Array.isArray(res.body)).toBe(true);
     });
 
-    it('GET /api/v1/location/:id debe obtener una ubicación por id', async () => {
+    it('GET /api/v1/location/:id should get a location by id', async () => {
         const res = await request(app).get(`/api/v1/location/${createdId}`);
         expect(res.status).toBe(200);
         expect(res.body.id).toBe(createdId);
     });
 
-    it('PUT /api/v1/location/:id debe actualizar una ubicación', async () => {
+    it('PUT /api/v1/location/:id should update a location', async () => {
         const updatedName = `Ubicación Actualizada ${Date.now()}`;
         const res = await request(app)
             .put(`/api/v1/location/${createdId}`)
@@ -40,7 +40,7 @@ describe('LocationController Integration', () => {
         expect(res.body.name).toBe(updatedName);
     });
 
-    it('DELETE /api/v1/location/:id debe eliminar una ubicación', async () => {
+    it('DELETE /api/v1/location/:id should delete a location', async () => {
         const res = await request(app).delete(`/api/v1/location/${createdId}`);
         expect(res.status).toBe(204);
     });

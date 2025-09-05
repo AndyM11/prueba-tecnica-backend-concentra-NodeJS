@@ -16,10 +16,15 @@ describe('Placement Controller (integration)', () => {
             .delete('/api/v1/article/barcode/' + testBarcode);
         await request(app)
             .delete('/api/v1/location/name/' + testLocation);
+        // Crear fabricante válido y obtener su ID
+        const fabricanteRes = await request(app)
+            .post('/api/v1/manufacturer/create')
+            .send({ name: `FabricanteTest_${uniqueSuffix}` });
+        const manufacturerId = fabricanteRes.body.id;
         // Crear artículo y ubicación válidos
         const articuloRes = await request(app)
             .post('/api/v1/article/create')
-            .send({ barcode: testBarcode, manufacturerId: 1 });
+            .send({ barcode: testBarcode, manufacturerId });
         articleId = articuloRes.body.id;
         const ubicacionRes = await request(app)
             .post('/api/v1/location')
@@ -27,7 +32,7 @@ describe('Placement Controller (integration)', () => {
         locationId = ubicacionRes.body.id;
     });
 
-    it('debería devolver 200 y una lista paginada de colocaciones', async () => {
+    it('should return 200 and a paginated list of placements', async () => {
         const res = await request(app)
             .get('/api/v1/placement')
             .send();
@@ -36,7 +41,7 @@ describe('Placement Controller (integration)', () => {
         expect(Array.isArray(res.body.data)).toBe(true);
     });
 
-    it('debería filtrar por articuloId', async () => {
+    it('should filter by articleId', async () => {
         const res = await request(app)
             .get(`/api/v1/placement?articleId=${articleId}`)
             .send();
@@ -44,7 +49,7 @@ describe('Placement Controller (integration)', () => {
         expect(res.body).toHaveProperty('data');
     });
 
-    it('debería devolver 400 al crear con datos inválidos', async () => {
+    it('should return 400 when creating with invalid data', async () => {
         const res = await request(app)
             .post('/api/v1/placement')
             .send({ displayName: '', price: -1 });
@@ -52,7 +57,7 @@ describe('Placement Controller (integration)', () => {
         expect(res.body).toHaveProperty('error');
     });
 
-    it('debería crear una colocación válida', async () => {
+    it('should create a valid placement', async () => {
         const res = await request(app)
             .post('/api/v1/placement')
             .send({ articleId, locationId, displayName: `DisplayTest_${uniqueSuffix}`, price: 99.99 });
@@ -64,39 +69,39 @@ describe('Placement Controller (integration)', () => {
         }
     });
 
-    it('debería devolver 400 si el id es inválido en getById', async () => {
+    it('should return 400 if id is invalid in getById', async () => {
         const res = await request(app)
             .get('/api/v1/placement/abc');
         expect(res.status).toBe(400);
     });
 
-    it('debería devolver 404 si el id no existe en getById', async () => {
+    it('should return 404 if id does not exist in getById', async () => {
         const res = await request(app)
             .get('/api/v1/placement/99999');
         expect([404, 400]).toContain(res.status);
     });
 
-    it('debería devolver 400 si el id es inválido en update', async () => {
+    it('should return 400 if id is invalid in update', async () => {
         const res = await request(app)
             .put('/api/v1/placement/abc')
             .send({ displayName: 'Nuevo' });
         expect(res.status).toBe(400);
     });
 
-    it('debería devolver 404 si el id no existe en update', async () => {
+    it('should return 404 if id does not exist in update', async () => {
         const res = await request(app)
             .put('/api/v1/placement/99999')
             .send({ displayName: 'Nuevo' });
         expect([404, 400]).toContain(res.status);
     });
 
-    it('debería devolver 400 si el id es inválido en delete', async () => {
+    it('should return 400 if id is invalid in delete', async () => {
         const res = await request(app)
             .delete('/api/v1/placement/abc');
         expect(res.status).toBe(400);
     });
 
-    it('debería devolver 404 si el id no existe en delete', async () => {
+    it('should return 404 if id does not exist in delete', async () => {
         const res = await request(app)
             .delete('/api/v1/placement/99999');
         expect([404, 400]).toContain(res.status);

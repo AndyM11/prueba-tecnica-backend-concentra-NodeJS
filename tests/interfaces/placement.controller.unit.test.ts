@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 
 describe('Placement Controller (unit)', () => {
     describe('createPlacement', () => {
-        it('debería devolver 400 si el body es inválido', async () => {
+        it('should return 400 if body is invalid', async () => {
             const req = { body: { displayName: '', price: -1 } } as any;
             const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as any;
             const next = jest.fn();
@@ -11,7 +11,7 @@ describe('Placement Controller (unit)', () => {
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ error: 'Datos inválidos' }));
         });
-        it('debería devolver 201 si el body es válido', async () => {
+        it('should return 201 if body is valid', async () => {
             const req = { body: { articleId: 1, locationId: 1, displayName: 'Test', price: 10 } } as any;
             const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as any;
             const next = jest.fn();
@@ -23,13 +23,13 @@ describe('Placement Controller (unit)', () => {
     });
 
     describe('getPlacementById', () => {
-        it('debería devolver 400 si el id es inválido', async () => {
+        it('should return 400 if id is invalid', async () => {
             const req = { params: { id: 'abc' } } as any;
             const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as any;
             await controller.getPlacementById(req, res);
             expect(res.status).toHaveBeenCalledWith(400);
         });
-        it('debería devolver 404 si no se encuentra', async () => {
+        it('should return 404 if not found', async () => {
             const req = { params: { id: '99' } } as any;
             const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as any;
             jest.spyOn(controller.getPlacementByIdUseCase, 'execute').mockResolvedValue(null);

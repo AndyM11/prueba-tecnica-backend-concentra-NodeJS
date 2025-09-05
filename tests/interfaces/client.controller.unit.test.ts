@@ -1,7 +1,7 @@
 import request from 'supertest';
 import express from 'express';
 import clientRoutes from '../../src/interfaces/routes/client.routes';
-import { ClientType } from '../../src/domain/entities/ClientType';
+import { ClientType } from '../../src/domain/entities/Types';
 
 describe('ClientController (unit)', () => {
     let app: express.Express;
@@ -12,7 +12,7 @@ describe('ClientController (unit)', () => {
         app.use('/api/v1/client', clientRoutes);
     });
 
-    it('debe crear un cliente válido', async () => {
+    it('should create a valid client', async () => {
         const res = await request(app)
             .post('/api/v1/client')
             .send({ name: 'Juan', phone: '809-123-4567', clientType: 'regular' });
@@ -22,7 +22,7 @@ describe('ClientController (unit)', () => {
         expect(res.body.clientType).toBe(ClientType.REGULAR);
     });
 
-    it('debe rechazar cliente con datos inválidos', async () => {
+    it('should reject client with invalid data', async () => {
         const res = await request(app)
             .post('/api/v1/client')
             .send({ name: '', phone: '123', clientType: 'vip' });
@@ -30,13 +30,13 @@ describe('ClientController (unit)', () => {
         expect(res.body).toHaveProperty('error');
     });
 
-    it('debe obtener un cliente por id inexistente', async () => {
+    it('should get a client by non-existent id', async () => {
         const res = await request(app)
             .get('/api/v1/client/99999');
-        expect([404, 500]).toContain(res.status);
+        expect([404]).toContain(res.status);
     });
 
-    it('debe actualizar un cliente con datos válidos', async () => {
+    it('should update a client with valid data', async () => {
         // Primero crear
         const createRes = await request(app)
             .post('/api/v1/client')
@@ -50,7 +50,7 @@ describe('ClientController (unit)', () => {
         expect(updateRes.body.name).toBe('Ana Actualizada');
     });
 
-    it('debe eliminar un cliente existente', async () => {
+    it('should delete an existing client', async () => {
         // Crear
         const createRes = await request(app)
             .post('/api/v1/client')
@@ -62,7 +62,7 @@ describe('ClientController (unit)', () => {
         expect([204, 200]).toContain(deleteRes.status);
     });
 
-    it('debe filtrar clientes por nombre', async () => {
+    it('should filter clients by name', async () => {
         await request(app)
             .post('/api/v1/client')
             .send({ name: 'Carlos', phone: '809-333-4444', clientType: 'regular' });
@@ -76,7 +76,7 @@ describe('ClientController (unit)', () => {
         expect(res.body.data.some((c: any) => c.name.includes('Car'))).toBe(true);
     });
 
-    it('debe filtrar clientes por telefono', async () => {
+    it('should filter clients by phone', async () => {
         await request(app)
             .post('/api/v1/client')
             .send({ name: 'Mario', phone: '809-678-9012', clientType: 'regular' });
@@ -89,7 +89,7 @@ describe('ClientController (unit)', () => {
         expect(res.body.data.some((c: any) => c.phone.includes('809-6'))).toBe(true);
     });
 
-    it('debe filtrar clientes por tipoCliente', async () => {
+    it('should filter clients by clientType', async () => {
         await request(app)
             .post('/api/v1/client')
             .send({ name: 'Regu', phone: '809-555-5555', clientType: 'regular' });
@@ -102,7 +102,7 @@ describe('ClientController (unit)', () => {
         expect(res.body.data.every((c: any) => c.clientType === 'vip')).toBe(true);
     });
 
-    it('debe rechazar registro con teléfono en formato incorrecto', async () => {
+    it('should reject registration with incorrect phone format', async () => {
         const res = await request(app)
             .post('/api/v1/client')
             .send({ name: 'Error', phone: '123-456-7890', clientType: 'regular' });
@@ -111,7 +111,7 @@ describe('ClientController (unit)', () => {
         expect(['Datos inválidos', 'El teléfono tiene un formato inválido']).toContain(res.body.error);
     });
 
-    it('debe rechazar registro con prefijo inválido', async () => {
+    it('should reject registration with invalid prefix', async () => {
         const res = await request(app)
             .post('/api/v1/client')
             .send({ name: 'Error', phone: '800-123-4567', clientType: 'vip' });

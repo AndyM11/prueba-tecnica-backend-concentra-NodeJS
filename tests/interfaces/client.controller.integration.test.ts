@@ -3,7 +3,7 @@ import express from 'express';
 import clientRoutes from '../../src/interfaces/routes/client.routes';
 import { PrismaClient } from '@prisma/client';
 
-describe('ClientController (integración)', () => {
+describe('ClientController (integration)', () => {
     let app: express.Express;
     let prisma: PrismaClient;
 
@@ -23,7 +23,7 @@ describe('ClientController (integración)', () => {
         await prisma.cliente.deleteMany();
     });
 
-    it('debe crear y obtener un cliente real en la base de datos', async () => {
+    it('should create and get a real client in the database', async () => {
         const resCreate = await request(app)
             .post('/api/v1/client')
             .send({ name: 'Real', phone: '809-000-0000', clientType: 'vip' });
@@ -36,7 +36,7 @@ describe('ClientController (integración)', () => {
         expect(resGet.body.clientType).toBe('vip');
     });
 
-    it('debe actualizar solo el nombre de un cliente', async () => {
+    it('should update only the name of a client', async () => {
         const resCreate = await request(app)
             .post('/api/v1/client')
             .send({ name: 'Update', phone: '829-000-0000', clientType: 'regular' });
@@ -50,7 +50,7 @@ describe('ClientController (integración)', () => {
         expect(resUpdate.body.clientType).toBe('regular');
     });
 
-    it('debe eliminar un cliente en la base de datos', async () => {
+    it('should delete a client in the database', async () => {
         const resCreate = await request(app)
             .post('/api/v1/client')
             .send({ name: 'Delete', phone: '849-000-0000', clientType: 'vip' });
@@ -63,7 +63,7 @@ describe('ClientController (integración)', () => {
         expect([404, 500]).toContain(resGet.status);
     });
 
-    it('debe listar clientes paginados', async () => {
+    it('should list paginated clients', async () => {
         await prisma.cliente.createMany({
             data: [
                 { nombre: 'A', telefono: '809-111-1111', tipoCliente: 'regular' },
@@ -81,7 +81,7 @@ describe('ClientController (integración)', () => {
         expect(resList.body.data[0]).toHaveProperty('clientType');
     });
 
-    it('debe rechazar actualización con teléfono en formato incorrecto', async () => {
+    it('should reject update with incorrect phone format', async () => {
         // Crear cliente válido primero
         const resCreate = await request(app)
             .post('/api/v1/client')

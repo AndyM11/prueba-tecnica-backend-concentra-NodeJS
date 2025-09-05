@@ -1,3 +1,72 @@
+// Esquema Swagger para Buy
+const BuyInputSchema = {
+    type: 'object',
+    required: ['clientId', 'placementId', 'units'],
+    properties: {
+        clientId: { type: 'integer', example: 2 },
+        placementId: { type: 'integer', example: 3 },
+        units: { type: 'integer', example: 5 }
+    }
+};
+
+const BuyOutputSchema = {
+    type: 'object',
+    required: ['id', 'clientId', 'placementId', 'units'],
+    properties: {
+        id: { type: 'integer', example: 1 },
+        clientId: { type: 'integer', example: 2 },
+        placementId: { type: 'integer', example: 3 },
+        units: { type: 'integer', example: 5 }
+    }
+};
+
+// Esquema Swagger para Employee
+const EmployeeInputSchema = {
+    type: 'object',
+    required: ['firstName', 'lastName', 'nationalId', 'phone', 'bloodType', 'email'],
+    properties: {
+        firstName: { type: 'string', example: 'Pedro' },
+        lastName: { type: 'string', example: 'Gómez' },
+        nationalId: { type: 'string', example: '001-1234567-8' },
+        phone: {
+            type: 'string',
+            example: '809-123-4567',
+            pattern: '^(809|829|849)-\\d{3}-\\d{4}$',
+            description: 'Formato: 809-000-0000, 829-000-0000 o 849-000-0000.'
+        },
+        bloodType: {
+            type: 'string',
+            enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+            example: 'O+',
+            description: 'Tipo de sangre.'
+        },
+        email: { type: 'string', format: 'email', example: 'pedro.gomez@email.com' }
+    }
+};
+
+const EmployeeOutputSchema = {
+    type: 'object',
+    required: ['id', 'firstName', 'lastName', 'nationalId', 'phone', 'bloodType', 'email'],
+    properties: {
+        id: { type: 'integer', example: 1 },
+        firstName: { type: 'string', example: 'Pedro' },
+        lastName: { type: 'string', example: 'Gómez' },
+        nationalId: { type: 'string', example: '001-1234567-8' },
+        phone: {
+            type: 'string',
+            example: '809-123-4567',
+            pattern: '^(809|829|849)-\\d{3}-\\d{4}$',
+            description: 'Formato: 809-000-0000, 829-000-0000 o 849-000-0000.'
+        },
+        bloodType: {
+            type: 'string',
+            enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+            example: 'O+',
+            description: 'Tipo de sangre.'
+        },
+        email: { type: 'string', format: 'email', example: 'pedro.gomez@email.com' }
+    }
+};
 // Esquema Swagger para Client
 
 // Esquemas para Client
@@ -57,6 +126,10 @@ const ClientListOutputSchema = {
 
 // Objeto swaggerSchemas único y ordenado
 export const swaggerSchemas = {
+    BuyInputSchema,
+    BuyOutputSchema,
+    EmployeeInputSchema,
+    EmployeeOutputSchema,
     Article: {
         type: 'object',
         description: 'Artículo. Representa un producto almacenado en el sistema.',

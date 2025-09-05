@@ -5,7 +5,7 @@ import { GetClientUseCase } from '../../domain/usecases/Client/GetClientUseCase'
 import { GetAllClientsUseCase } from '../../domain/usecases/Client/GetAllClientsUseCase';
 import { UpdateClientUseCase } from '../../domain/usecases/Client/UpdateClientUseCase';
 import { DeleteClientUseCase } from '../../domain/usecases/Client/DeleteClientUseCase';
-import { ClientType } from '../../domain/entities/ClientType';
+import { ClientType } from '../../domain/entities/Types';
 import { Client } from '../../domain/entities/Client';
 import { Request, Response } from 'express';
 import { z } from 'zod';
