@@ -7,17 +7,25 @@ describe('Employee Controller Integration', () => {
     app.use(express.json());
     app.use('/employees', employeeRouter);
 
-    it('POST /employees - valid', async () => {
+
+    it('POST /employees - valid nationalId', async () => {
         const res = await request(app)
             .post('/employees')
-            .send({ firstName: 'Juan', lastName: 'Pérez', nationalId: '12345', phone: '1234567890', bloodType: 'A+', email: 'juan@test.com' });
+            .send({ firstName: 'Juan', lastName: 'Pérez', nationalId: '123-1234567-1', phone: '1234567890', bloodType: 'A+', email: 'juan@test.com' });
         expect([201, 400, 500]).toContain(res.statusCode);
     });
 
-    it('POST /employees - invalid', async () => {
+    it('POST /employees - invalid nationalId format', async () => {
         const res = await request(app)
             .post('/employees')
-            .send({ firstName: '', lastName: 'Pérez', nationalId: '12345', phone: '1234567890', bloodType: 'X', email: 'juan@test.com' });
+            .send({ firstName: 'Juan', lastName: 'Pérez', nationalId: '12345', phone: '1234567890', bloodType: 'A+', email: 'juan@test.com' });
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('POST /employees - invalid (empty firstName)', async () => {
+        const res = await request(app)
+            .post('/employees')
+            .send({ firstName: '', lastName: 'Pérez', nationalId: '123-1234567-1', phone: '1234567890', bloodType: 'A+', email: 'juan@test.com' });
         expect(res.statusCode).toBe(400);
     });
 

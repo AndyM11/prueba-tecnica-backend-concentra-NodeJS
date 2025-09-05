@@ -19,7 +19,8 @@ const getAllEmployeesUseCase = new GetAllEmployeesUseCase(employeeRepo);
 const employeeSchema = z.object({
     firstName: z.string().min(2, 'El nombre es obligatorio'),
     lastName: z.string().min(2, 'El apellido es obligatorio'),
-    nationalId: z.string().min(5, 'La cédula es obligatoria'),
+    nationalId: z.string()
+        .regex(/^\d{3}-\d{7}-\d{1}$/, 'La cédula debe tener el formato 000-0000000-0'),
     phone: z.string().min(10, 'El teléfono es obligatorio'),
     bloodType: z.string(),
     email: z.string().email('Email inválido'),
