@@ -77,7 +77,12 @@ const EmployeeInputSchema = {
     properties: {
         firstName: { type: 'string', example: 'Pedro' },
         lastName: { type: 'string', example: 'Gómez' },
-        nationalId: { type: 'string', example: '001-1234567-8' },
+        nationalId: {
+            type: 'string',
+            example: '123-1234567-1',
+            pattern: '^\\d{3}-\\d{7}-\\d{1}$',
+            description: 'Formato: 000-0000000-0'
+        },
         phone: {
             type: 'string',
             example: '809-123-4567',
@@ -101,7 +106,12 @@ const EmployeeOutputSchema = {
         id: { type: 'integer', example: 1 },
         firstName: { type: 'string', example: 'Pedro' },
         lastName: { type: 'string', example: 'Gómez' },
-        nationalId: { type: 'string', example: '001-1234567-8' },
+        nationalId: {
+            type: 'string',
+            example: '123-1234567-1',
+            pattern: '^\\d{3}-\\d{7}-\\d{1}$',
+            description: 'Formato: 000-0000000-0'
+        },
         phone: {
             type: 'string',
             example: '809-123-4567',
