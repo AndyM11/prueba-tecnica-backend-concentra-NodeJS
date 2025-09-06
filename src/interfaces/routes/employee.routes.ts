@@ -1,11 +1,11 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {
-    createEmployee,
-    updateEmployee,
-    deleteEmployee,
-    getEmployeeById,
-    getAllEmployees
-} from '../controllers/employee.controller';
+  createEmployee,
+  updateEmployee,
+  deleteEmployee,
+  getEmployeeById,
+  getAllEmployees,
+} from "../controllers/employee.controller";
 
 const router = Router();
 
@@ -13,7 +13,7 @@ const router = Router();
  * @swagger
  * tags:
  *   name: Employees
- *  
+ *
  */
 
 /**
@@ -57,7 +57,7 @@ const router = Router();
  *       400:
  *         description: Datos inválidos
  */
-router.post('/', createEmployee);
+router.post("/", createEmployee);
 
 /**
  * @swagger
@@ -109,7 +109,7 @@ router.post('/', createEmployee);
  *       404:
  *         description: Empleado no encontrado
  */
-router.put('/:id', updateEmployee);
+router.put("/:id", updateEmployee);
 
 /**
  * @swagger
@@ -130,7 +130,7 @@ router.put('/:id', updateEmployee);
  *       404:
  *         description: Empleado no encontrado
  */
-router.delete('/:id', deleteEmployee);
+router.delete("/:id", deleteEmployee);
 
 /**
  * @swagger
@@ -165,7 +165,7 @@ router.delete('/:id', deleteEmployee);
  *       404:
  *         description: Empleado no encontrado
  */
-router.get('/:id', getEmployeeById);
+router.get("/:id", getEmployeeById);
 
 /**
  * @swagger
@@ -249,6 +249,6 @@ router.get('/:id', getEmployeeById);
  *                     nationalId: string
  *                     phone: string
  */
-router.get('/', getAllEmployees);
+router.get("/", getAllEmployees);
 
 export default router;

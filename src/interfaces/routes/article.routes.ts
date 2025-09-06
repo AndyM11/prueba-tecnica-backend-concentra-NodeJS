@@ -1,11 +1,11 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {
-    getArticles,
-    createArticle,
-    getArticleById,
-    updateArticle,
-    deleteArticle
-} from '../controllers/article.controller';
+  getArticles,
+  createArticle,
+  getArticleById,
+  updateArticle,
+  deleteArticle,
+} from "../controllers/article.controller";
 
 const router = Router();
 
@@ -57,7 +57,7 @@ const router = Router();
  *               items:
  *                 $ref: '#/components/schemas/Article'
  */
-router.get('/', getArticles);
+router.get("/", getArticles);
 
 /**
  * @swagger
@@ -80,7 +80,7 @@ router.get('/', getArticles);
  *       409:
  *         description: El artículo ya existe
  */
-router.post('/create', createArticle);
+router.post("/create", createArticle);
 
 /**
  * @swagger
@@ -101,7 +101,7 @@ router.post('/create', createArticle);
  *       404:
  *         description: No encontrado
  */
-router.get('/getById/:id', getArticleById);
+router.get("/getById/:id", getArticleById);
 
 /**
  * @swagger
@@ -128,7 +128,7 @@ router.get('/getById/:id', getArticleById);
  *       404:
  *         description: No encontrado
  */
-router.put('/update/:id', updateArticle);
+router.put("/update/:id", updateArticle);
 
 /**
  * @swagger
@@ -149,6 +149,6 @@ router.put('/update/:id', updateArticle);
  *       404:
  *         description: No encontrado
  */
-router.delete('/delete/:id', deleteArticle);
+router.delete("/delete/:id", deleteArticle);
 
 export default router;

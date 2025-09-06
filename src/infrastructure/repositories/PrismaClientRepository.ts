@@ -1,86 +1,93 @@
+import { PrismaClient, Prisma } from "@prisma/client";
+import { Client } from "../../domain/entities/Client";
+import { ClientRepository } from "../../domain/repositories/ClientRepository";
+import { ClientType } from "../../domain/entities/Types";
+import { ClientFilterOptions } from "../../domain/entities/Types";
 
-import { PrismaClient } from '@prisma/client';
-import { Client } from '../../domain/entities/Client';
-import { ClientRepository } from '../../domain/repositories/ClientRepository';
-
-const prisma = new PrismaClient();
 
 export class PrismaClientRepository implements ClientRepository {
-    async create(data: Omit<Client, 'id'>): Promise<any> {
-        // Mapear campos de inglés a español para la base de datos
-        const dbData = {
-            nombre: data.name,
-            telefono: data.phone,
-            tipoCliente: data.clientType
-        };
-        const c = await prisma.cliente.create({ data: dbData });
-        return {
-            id: c.id,
-            name: c.nombre,
-            phone: c.telefono,
-            clientType: c.tipoCliente
-        };
-    }
+  private prisma: PrismaClient;
 
-    async findById(id: number): Promise<any | null> {
-        const c = await prisma.cliente.findUnique({ where: { id } });
-        return c
-            ? {
-                id: c.id,
-                name: c.nombre,
-                phone: c.telefono,
-                clientType: c.tipoCliente
-            }
-            : null;
-    }
+  constructor(prismaInstance?: PrismaClient) {
+    this.prisma = prismaInstance || new PrismaClient();
+  }
 
-    async findAll(params: { page?: number; per_page?: number; name?: string; phone?: string; clientType?: string } = {}): Promise<{ data: any[]; total: number; page: number; per_page: number }> {
-        const { page = 1, per_page = 10, name, phone, clientType } = params;
-        const where: any = {};
-        if (name) where.nombre = { contains: name };
-        if (phone) where.telefono = { contains: phone };
-        if (clientType) where.tipoCliente = clientType;
-        const [total, data] = await Promise.all([
-            prisma.cliente.count({ where }),
-            prisma.cliente.findMany({
-                where,
-                skip: (page - 1) * per_page,
-                take: per_page,
-            }),
-        ]);
-        return {
-            data: data.map(c => ({
-                id: c.id,
-                name: c.nombre,
-                phone: c.telefono,
-                clientType: c.tipoCliente
-            })),
-            total,
-            page,
-            per_page
-        };
-    }
+  async findById(id: number): Promise<Client | null> {
+    const c = await this.prisma.cliente.findUnique({ where: { id } });
+    return c
+      ? {
+        id: c.id,
+        name: c.nombre,
+        phone: c.telefono,
+        clientType: c.tipoCliente as ClientType,
+      }
+      : null;
+  }
 
-    async update(id: number, data: Partial<Omit<Client, 'id'>>): Promise<any | null> {
-        try {
-            // Mapear campos de inglés a español para la base de datos
-            const dbData: any = {};
-            if (typeof data.name !== 'undefined') dbData.nombre = data.name;
-            if (typeof data.phone !== 'undefined') dbData.telefono = data.phone;
-            if (typeof data.clientType !== 'undefined') dbData.tipoCliente = data.clientType;
-            const c = await prisma.cliente.update({ where: { id }, data: dbData });
-            return {
-                id: c.id,
-                name: c.nombre,
-                phone: c.telefono,
-                clientType: c.tipoCliente
-            };
-        } catch {
-            return null;
-        }
-    }
+  async findAll(filters: ClientFilterOptions = {}): Promise<{
+    data: Client[];
+    total: number;
+    page: number;
+    per_page: number;
+  }> {
+    const { name, phone, clientType, page = 1, per_page = 10 } = filters;
+    const where: Prisma.ClienteWhereInput = {};
+    if (name) where.nombre = { contains: name };
+    if (phone) where.telefono = { contains: phone };
+    if (clientType) where.tipoCliente = clientType;
+    const skip = (page - 1) * per_page;
+    const [data, total] = await Promise.all([
+      this.prisma.cliente.findMany({ where, skip, take: per_page }),
+      this.prisma.cliente.count({ where }),
+    ]);
+    return {
+      data: data.map((c) => ({
+        id: c.id,
+        name: c.nombre,
+        phone: c.telefono,
+        clientType: c.tipoCliente as ClientType,
+      })),
+      total,
+      page,
+      per_page,
+    };
+  }
 
-    async delete(id: number): Promise<void> {
-        await prisma.cliente.delete({ where: { id } });
+  async create(data: Omit<Client, "id">): Promise<Client> {
+    const c = await this.prisma.cliente.create({
+      data: {
+        nombre: data.name,
+        telefono: data.phone,
+        tipoCliente: data.clientType,
+      },
+    });
+    return {
+      id: c.id,
+      name: c.nombre,
+      phone: c.telefono,
+      clientType: c.tipoCliente as ClientType,
+    };
+  }
+
+  async update(id: number, data: Partial<Omit<Client, "id">>): Promise<Client | null> {
+    const dbData: Prisma.ClienteUpdateInput = {};
+    if (typeof data.name !== "undefined") dbData.nombre = data.name;
+    if (typeof data.phone !== "undefined") dbData.telefono = data.phone;
+    if (typeof data.clientType !== "undefined") dbData.tipoCliente = data.clientType;
+    try {
+      const c = await this.prisma.cliente.update({ where: { id }, data: dbData });
+      return {
+        id: c.id,
+        name: c.nombre,
+        phone: c.telefono,
+        clientType: c.tipoCliente as ClientType,
+      };
+    } catch {
+      return null;
     }
+  }
+
+  async delete(id: number): Promise<void> {
+    await this.prisma.cliente.delete({ where: { id } });
+  }
 }

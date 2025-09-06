@@ -1,9 +1,9 @@
-import { ArticleRepository } from '../../repositories/ArticleRepository';
+import { ArticleRepository } from "../../repositories/ArticleRepository";
 
 export class DeleteArticleUseCase {
-    constructor(private articleRepo: ArticleRepository) { }
+  constructor(private articleRepo: ArticleRepository) {}
 
-    async execute(id: number): Promise<void> {
-        await this.articleRepo.delete(id);
-    }
+  async execute(id: number): Promise<void> {
+    await this.articleRepo.delete(id);
+  }
 }

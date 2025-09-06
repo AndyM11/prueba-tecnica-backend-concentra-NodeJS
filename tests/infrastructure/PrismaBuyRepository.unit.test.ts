@@ -3,62 +3,70 @@ import { PrismaClient } from '@prisma/client';
 import { Buy } from '../../src/domain/entities/Buy';
 
 describe('PrismaBuyRepository', () => {
+    type MockCompra = {
+        create: jest.Mock;
+        findUnique: jest.Mock;
+        update: jest.Mock;
+        findMany: jest.Mock;
+        count: jest.Mock;
+        delete: jest.Mock;
+    };
+    let prisma: { compra: MockCompra };
     let repo: PrismaBuyRepository;
-    let prisma: PrismaClient;
 
-
-    beforeAll(async () => {
-        prisma = new PrismaClient();
-        repo = new PrismaBuyRepository(prisma);
-        // Eliminar datos previos en orden correcto para evitar conflictos de integridad
-        await prisma.compra.deleteMany({});
-        await prisma.colocacion.deleteMany({});
-        await prisma.articulo.deleteMany({});
-        await prisma.ubicacion.deleteMany({});
-        await prisma.fabricante.deleteMany({});
-        await prisma.cliente.deleteMany({});
-        // Crear datos dependientes para Colocacion
-        await prisma.fabricante.create({ data: { id: 1, nombre: 'TestFabricante' } });
-        await prisma.articulo.create({ data: { id: 1, codigoBarras: 'ABC123', descripcion: 'TestArticulo', fabricanteId: 1, stock: 100 } });
-        await prisma.ubicacion.create({ data: { id: 1, nombre: 'TestUbicacion' } });
-        await prisma.cliente.create({ data: { id: 1, nombre: 'Test', telefono: '123456789', tipoCliente: 'Normal' } });
-        await prisma.colocacion.create({ data: { id: 1, nombreExhibido: 'TestPlacement', precio: 10, ubicacionId: 1, articuloId: 1 } });
+    beforeEach(() => {
+        prisma = {
+            compra: {
+                create: jest.fn(),
+                findUnique: jest.fn(),
+                update: jest.fn(),
+                findMany: jest.fn(),
+                count: jest.fn(),
+                delete: jest.fn(),
+            },
+        };
+        repo = new PrismaBuyRepository(prisma as unknown as PrismaClient);
     });
 
-    afterAll(async () => {
-        // Limpiar datos creados
-        // Eliminar en orden correcto para evitar errores de integridad
-        await prisma.compra.deleteMany({});
-        await prisma.colocacion.deleteMany({});
-        await prisma.articulo.deleteMany({});
-        await prisma.ubicacion.deleteMany({});
-        await prisma.fabricante.deleteMany({});
-        await prisma.cliente.deleteMany({});
-        await prisma.$disconnect();
-    });
-
-    it('should create a buy', async () => {
-        const buy: Buy = { id: 9999, clientId: 1, placementId: 1, units: 10 };
+    it('create retorna nuevo Buy', async () => {
+        prisma.compra.create.mockResolvedValue({ id: 1, clienteId: 2, colocacionId: 3, unidades: 5 });
+        const buy: Buy = { id: 1, clientId: 2, placementId: 3, units: 5 };
         const result = await repo.create(buy);
-        expect(result).toMatchObject({ clientId: 1, placementId: 1, units: 10 });
+        expect(result).toMatchObject({ id: 1, clientId: 2, placementId: 3, units: 5 });
     });
 
-    it('should get buy by id', async () => {
-        const result = await repo.getById(9999);
-        expect(result?.id).toBe(9999);
+    it('getById retorna Buy si existe', async () => {
+        prisma.compra.findUnique.mockResolvedValue({ id: 2, clienteId: 3, colocacionId: 4, unidades: 6 });
+        const result = await repo.getById(2);
+        expect(result).toMatchObject({ id: 2, clientId: 3, placementId: 4, units: 6 });
     });
 
-    it('should update a buy', async () => {
-        const result = await repo.update(9999, { units: 20 });
-        expect(result?.units).toBe(20);
+    it('getById retorna null si no existe', async () => {
+        prisma.compra.findUnique.mockResolvedValue(null);
+        const result = await repo.getById(999);
+        expect(result).toBeNull();
     });
 
-    it('should get all buys', async () => {
-        const result = await repo.getAll({ clientId: 1 });
-        expect(Array.isArray(result)).toBe(true);
+    it('update retorna Buy actualizado', async () => {
+        prisma.compra.update.mockResolvedValue({ id: 3, clienteId: 4, colocacionId: 5, unidades: 20 });
+        const result = await repo.update(3, { units: 20 });
+        expect(result).toMatchObject({ id: 3, units: 20 });
     });
+
+    it('findByFilter retorna paginado', async () => {
+        prisma.compra.findMany.mockResolvedValue([
+            { id: 4, clienteId: 5, colocacionId: 6, unidades: 7 },
+        ]);
+        prisma.compra.count.mockResolvedValue(1);
+        const result = await repo.findByFilter({ clientId: 5, page: 1, per_page: 1 });
+        expect(result.total).toBe(1);
+        expect(result.data[0]).toMatchObject({ clientId: 5 });
+    });
+    ;
 
     it('should delete a buy', async () => {
+        prisma.compra.delete.mockResolvedValue({});
+        prisma.compra.findUnique.mockResolvedValue(null);
         await expect(repo.delete(9999)).resolves.toBeUndefined();
         const result = await repo.getById(9999);
         expect(result).toBeNull();

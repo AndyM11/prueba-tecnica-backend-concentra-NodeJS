@@ -1,10 +1,10 @@
 import { Router } from "express";
 import {
-    getPlacements,
-    createPlacement,
-    getPlacementById,
-    updatePlacement,
-    deletePlacement
+  getPlacements,
+  createPlacement,
+  getPlacementById,
+  updatePlacement,
+  deletePlacement,
 } from "../controllers/placement.controller";
 
 const router = Router();
@@ -68,7 +68,7 @@ const router = Router();
  *                 details:
  *                   type: string
  */
-router.get('/', getPlacements);
+router.get("/", getPlacements);
 /**
  * @swagger
  * /api/v1/placement:
@@ -103,7 +103,7 @@ router.get('/', getPlacements);
  *                   items:
  *                     type: object
  */
-router.post('/', createPlacement);
+router.post("/", createPlacement);
 /**
  * @swagger
  * /api/v1/placement/{id}:
@@ -154,7 +154,7 @@ router.post('/', createPlacement);
  *                 details:
  *                   type: string
  */
-router.get('/:id', getPlacementById);
+router.get("/:id", getPlacementById);
 /**
  * @swagger
  * /api/v1/placement/{id}:
@@ -204,7 +204,7 @@ router.get('/:id', getPlacementById);
  *                 error:
  *                   type: string
  */
-router.put('/:id', updatePlacement);
+router.put("/:id", updatePlacement);
 /**
  * @swagger
  * /api/v1/placement/{id}:
@@ -240,6 +240,6 @@ router.put('/:id', updatePlacement);
  *                 error:
  *                   type: string
  */
-router.delete('/:id', deletePlacement);
+router.delete("/:id", deletePlacement);
 
 export default router;

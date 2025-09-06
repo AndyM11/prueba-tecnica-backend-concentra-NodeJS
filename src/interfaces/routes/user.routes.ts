@@ -1,13 +1,12 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {
-    getUsers,
-    getUserById,
-    createUser,
-    updateUser,
-    deleteUser,
-    getUserByUsername
-} from '../controllers/user.controller';
-
+  getUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  deleteUser,
+  getUserByUsername,
+} from "../controllers/user.controller";
 
 const router = Router();
 
@@ -40,7 +39,7 @@ const router = Router();
  *       404:
  *         description: Usuario no encontrado
  */
-router.get('/username/:username', getUserByUsername);
+router.get("/username/:username", getUserByUsername);
 
 /**
  * @swagger
@@ -70,7 +69,7 @@ router.get('/username/:username', getUserByUsername);
  *                 rol: "ADMIN"
  *                 employeeId: 0
  */
-router.get('/', getUsers);
+router.get("/", getUsers);
 
 /**
  * @swagger
@@ -101,7 +100,7 @@ router.get('/', getUsers);
  *       404:
  *         description: Usuario no encontrado
  */
-router.get('/:id', getUserById);
+router.get("/:id", getUserById);
 
 /**
  * @swagger
@@ -182,7 +181,7 @@ router.get('/:id', getUserById);
  *                   error: "Error al obtener los usuarios"
  *                   details: "Error de conexión a base de datos"
  */
-router.post('/', createUser);
+router.post("/", createUser);
 
 /**
  * @swagger
@@ -226,7 +225,7 @@ router.post('/', createUser);
  *       404:
  *         description: Usuario no encontrado
  */
-router.put('/:id', updateUser);
+router.put("/:id", updateUser);
 
 /**
  * @swagger
@@ -247,6 +246,6 @@ router.put('/:id', updateUser);
  *       404:
  *         description: Usuario no encontrado
  */
-router.delete('/:id', deleteUser);
+router.delete("/:id", deleteUser);
 
 export default router;

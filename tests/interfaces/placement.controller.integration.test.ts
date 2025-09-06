@@ -1,7 +1,7 @@
 import request from 'supertest';
 import app from '../../src/app';
 
-let articuloId: number;
+
 let articleId: number;
 let locationId: number;
 // Generar valores únicos para cada ejecución

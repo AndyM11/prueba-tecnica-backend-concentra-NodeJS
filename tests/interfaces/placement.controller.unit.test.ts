@@ -1,5 +1,4 @@
 import * as controller from '../../src/interfaces/controllers/placement.controller';
-import { Request, Response } from 'express';
 
 describe('Placement Controller (unit)', () => {
     describe('createPlacement', () => {

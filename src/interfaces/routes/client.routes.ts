@@ -1,15 +1,13 @@
-
-import { Router } from 'express';
+import { Router } from "express";
 import {
-    getClients,
-    getClientById,
-    createClient,
-    updateClient,
-    deleteClient
-} from '../controllers/client.controller';
+  getClients,
+  getClientById,
+  createClient,
+  updateClient,
+  deleteClient,
+} from "../controllers/client.controller";
 
 const router = Router();
-
 
 /**
  * @swagger
@@ -58,7 +56,7 @@ const router = Router();
  *             schema:
  *               $ref: '#/components/schemas/ClientListOutputSchema'
  */
-router.get('/', getClients);
+router.get("/", getClients);
 
 /**
  * @swagger
@@ -84,7 +82,7 @@ router.get('/', getClients);
  *       404:
  *         description: Cliente no encontrado
  */
-router.get('/:id', getClientById);
+router.get("/:id", getClientById);
 
 /**
  * @swagger
@@ -113,7 +111,7 @@ router.get('/:id', getClientById);
  *       400:
  *         description: Datos inválidos
  */
-router.post('/', createClient);
+router.post("/", createClient);
 
 /**
  * @swagger
@@ -151,7 +149,7 @@ router.post('/', createClient);
  *       404:
  *         description: Cliente no encontrado
  */
-router.put('/:id', updateClient);
+router.put("/:id", updateClient);
 
 /**
  * @swagger
@@ -173,6 +171,6 @@ router.put('/:id', updateClient);
  *       404:
  *         description: Cliente no encontrado
  */
-router.delete('/:id', deleteClient);
+router.delete("/:id", deleteClient);
 
 export default router;

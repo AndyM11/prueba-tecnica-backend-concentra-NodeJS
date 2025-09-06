@@ -1,10 +1,10 @@
 import { Router } from "express";
 import {
-    getLocations,
-    createLocation,
-    getLocationById,
-    updateLocation,
-    deleteLocation
+  getLocations,
+  createLocation,
+  getLocationById,
+  updateLocation,
+  deleteLocation,
 } from "../controllers/location.controller";
 
 const router = Router();
@@ -31,7 +31,7 @@ const router = Router();
  *                   name:
  *                     type: string
  */
-router.get('/', getLocations);
+router.get("/", getLocations);
 /**
  * @swagger
  * /api/v1/location:
@@ -87,7 +87,7 @@ router.get('/', getLocations);
  *                 details:
  *                   type: string
  */
-router.post('/', createLocation);
+router.post("/", createLocation);
 /**
  * @swagger
  * /api/v1/location/{id}:
@@ -143,7 +143,7 @@ router.post('/', createLocation);
  *                 details:
  *                   type: string
  */
-router.get('/:id', getLocationById);
+router.get("/:id", getLocationById);
 /**
  * @swagger
  * /api/v1/location/{id}:
@@ -203,7 +203,7 @@ router.get('/:id', getLocationById);
  *                 error:
  *                   type: string
  */
-router.put('/:id', updateLocation);
+router.put("/:id", updateLocation);
 /**
  * @swagger
  * /api/v1/location/{id}:
@@ -239,6 +239,6 @@ router.put('/:id', updateLocation);
  *                 error:
  *                   type: string
  */
-router.delete('/:id', deleteLocation);
+router.delete("/:id", deleteLocation);
 
 export default router;

@@ -1,11 +1,11 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {
-    createBuy,
-    updateBuy,
-    deleteBuy,
-    getBuyById,
-    getAllBuys
-} from '../controllers/buy.controller';
+  createBuy,
+  updateBuy,
+  deleteBuy,
+  getBuyById,
+  getAllBuys,
+} from "../controllers/buy.controller";
 
 const router = Router();
 
@@ -13,7 +13,7 @@ const router = Router();
  * @swagger
  * tags:
  *   name: Buys
- *   
+ *
  */
 
 /**
@@ -51,7 +51,7 @@ const router = Router();
  *       400:
  *         description: Datos inválidos
  */
-router.post('/', createBuy);
+router.post("/", createBuy);
 
 /**
  * @swagger
@@ -97,7 +97,7 @@ router.post('/', createBuy);
  *       404:
  *         description: Compra no encontrada
  */
-router.put('/:id', updateBuy);
+router.put("/:id", updateBuy);
 
 /**
  * @swagger
@@ -118,7 +118,7 @@ router.put('/:id', updateBuy);
  *       404:
  *         description: Compra no encontrada
  */
-router.delete('/:id', deleteBuy);
+router.delete("/:id", deleteBuy);
 
 /**
  * @swagger
@@ -150,7 +150,7 @@ router.delete('/:id', deleteBuy);
  *       404:
  *         description: Compra no encontrada
  */
-router.get('/:id', getBuyById);
+router.get("/:id", getBuyById);
 
 /**
  * @swagger
@@ -210,6 +210,6 @@ router.get('/:id', getBuyById);
  *                     placementId: 0
  *                     units: 0
  */
-router.get('/', getAllBuys);
+router.get("/", getAllBuys);
 
 export default router;

@@ -1,9 +1,9 @@
-import { ManufacturerRepository } from '../../repositories/ManufacturerRepository';
+import { ManufacturerRepository } from "../../repositories/ManufacturerRepository";
 
 export class DeleteManufacturerUseCase {
-    constructor(private manufacturerRepo: ManufacturerRepository) { }
+  constructor(private manufacturerRepo: ManufacturerRepository) {}
 
-    async execute(id: number): Promise<void> {
-        await this.manufacturerRepo.delete(id);
-    }
+  async execute(id: number): Promise<void> {
+    await this.manufacturerRepo.delete(id);
+  }
 }

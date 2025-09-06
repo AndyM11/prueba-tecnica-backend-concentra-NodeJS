@@ -1,11 +1,11 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {
-    getManufacturers,
-    createManufacturer,
-    getManufacturerById,
-    updateManufacturer,
-    deleteManufacturer
-} from '../controllers/manufacturer.controller';
+  getManufacturers,
+  createManufacturer,
+  getManufacturerById,
+  updateManufacturer,
+  deleteManufacturer,
+} from "../controllers/manufacturer.controller";
 
 const router = Router();
 
@@ -61,7 +61,7 @@ const router = Router();
  *                       name:
  *                         type: string
  */
-router.get('/', getManufacturers); //Para obtener todos los fabricantes.
+router.get("/", getManufacturers); //Para obtener todos los fabricantes.
 
 /**
  * @swagger
@@ -118,7 +118,7 @@ router.get('/', getManufacturers); //Para obtener todos los fabricantes.
  *                 details:
  *                   type: object
  */
-router.post('/create', createManufacturer);
+router.post("/create", createManufacturer);
 
 /**
  * @swagger
@@ -139,7 +139,7 @@ router.post('/create', createManufacturer);
  *       404:
  *         description: No encontrado
  */
-router.get('/getById/:id', getManufacturerById);
+router.get("/getById/:id", getManufacturerById);
 
 /**
  * @swagger
@@ -171,7 +171,7 @@ router.get('/getById/:id', getManufacturerById);
  *       404:
  *         description: No encontrado
  */
-router.put('/update/:id', updateManufacturer);
+router.put("/update/:id", updateManufacturer);
 
 /**
  * @swagger
@@ -192,6 +192,6 @@ router.put('/update/:id', updateManufacturer);
  *       404:
  *         description: No encontrado
  */
-router.delete('/delete/:id', deleteManufacturer);
+router.delete("/delete/:id", deleteManufacturer);
 
 export default router;

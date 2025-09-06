@@ -1,5 +1,5 @@
+import { Request } from 'express';
 import * as controller from '../../src/interfaces/controllers/manufacturer.controller';
-import { Request, Response } from 'express';
 
 describe('createManufacturer (unit)', () => {
     // Limpia los mocks después de cada prueba

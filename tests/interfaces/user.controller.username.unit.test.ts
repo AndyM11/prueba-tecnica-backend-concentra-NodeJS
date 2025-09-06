@@ -1,7 +1,7 @@
-import * as controller from '../../src/interfaces/controllers/user.controller';
 import { Request, Response } from 'express';
-import { User } from '../../src/domain/entities/User';
 import { UserRole } from '../../src/domain/entities/Types';
+import { User } from '../../src/domain/entities/User';
+import * as controller from '../../src/interfaces/controllers/user.controller';
 
 describe('User Controller - getUserByUsername', () => {
     const mockReq = (params = {}) => ({ params } as unknown as Request);
