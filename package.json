@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "nodemon src/interfaces/server.ts",
     "start": "ts-node src/interfaces/server.ts",
+    "build": "tsc",
     "test": "jest --runInBand --detectOpenHandles",
     "test:coverage": "jest --coverage",
     "lint": "eslint .",
