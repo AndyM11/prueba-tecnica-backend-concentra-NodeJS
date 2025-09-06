@@ -4,6 +4,30 @@ import { UserRole } from '../../src/domain/entities/Types';
 import { PrismaUserRepository } from '../../src/infrastructure/repositories/PrismaUserRepository';
 
 describe('PrismaUserRepository', () => {
+    it('update retorna null si Prisma lanza error', async () => {
+        (prisma.usuario.update as jest.Mock).mockRejectedValue(new Error('Prisma error'));
+        const user = await repo.update(1, { username: 'error' });
+        expect(user).toBeNull();
+    });
+
+    it('findById retorna null si no existe', async () => {
+        (prisma.usuario.findUnique as jest.Mock).mockResolvedValue(null);
+        const user = await repo.findById(999);
+        expect(user).toBeNull();
+    });
+
+    it('findByUsername retorna null si no existe', async () => {
+        (prisma.usuario.findUnique as jest.Mock).mockResolvedValue(null);
+        const user = await repo.findByUsername('no-user');
+        expect(user).toBeNull();
+    });
+
+    it('findAll retorna array vacío si no hay usuarios', async () => {
+        (prisma.usuario.findMany as jest.Mock).mockResolvedValue([]);
+        const users = await repo.findAll();
+        expect(Array.isArray(users)).toBe(true);
+        expect(users).toHaveLength(0);
+    });
     type MockUsuario = {
         create: jest.Mock;
         update: jest.Mock;

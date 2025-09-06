@@ -1,10 +1,11 @@
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import { z } from "zod";
 import { CreateLocationUseCase } from "../../domain/usecases/Location/CreateLocationUseCase";
 import { DeleteLocationUseCase } from "../../domain/usecases/Location/DeleteLocationUseCase";
 import { GetAllLocationsUseCase } from "../../domain/usecases/Location/GetAllLocationsUseCase";
 import { GetLocationByIdUseCase } from "../../domain/usecases/Location/GetLocationByIdUseCase";
 import { UpdateLocationUseCase } from "../../domain/usecases/Location/UpdateLocationUseCase";
+import redis from "../../infrastructure/redisClient";
 import { PrismaLocationRepository } from "../../infrastructure/repositories/PrismaLocationRepository";
 
 const locationRepo = new PrismaLocationRepository();
@@ -17,20 +18,6 @@ export const deleteLocationUseCase = new DeleteLocationUseCase(locationRepo);
 const locationSchema = z.object({
   name: z.string().min(5, "El nombre es obligatorio"),
 });
-
-export const getLocations = async (req: Request, res: Response) => {
-  try {
-    const result = await listLocationsUseCase.execute();
-    res.json(result);
-  } catch (error) {
-    res
-      .status(500)
-      .json({
-        error: "Error obteniendo ubicaciones",
-        details: error instanceof Error ? error.message : error,
-      });
-  }
-};
 
 export const createLocation = async (
   req: Request,
@@ -51,15 +38,41 @@ export const createLocation = async (
   }
 };
 
+export const getLocations = async (req: Request, res: Response) => {
+  try {
+    const cacheKey = "locations:all";
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return res.json(JSON.parse(cached));
+    }
+    const result = await listLocationsUseCase.execute();
+    await redis.set(cacheKey, JSON.stringify(result), "EX", 60);
+    res.json(result);
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        error: "Error obteniendo ubicaciones",
+        details: error instanceof Error ? error.message : error,
+      });
+  }
+};
+
 export const getLocationById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     if (!id || isNaN(Number(id))) {
       return res.status(400).json({ error: "ID de ubicación inválido" });
     }
+    const cacheKey = `locations:${id}`;
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return res.json(JSON.parse(cached));
+    }
     const location = await getLocationByIdUseCase.execute(Number(id));
     if (!location)
       return res.status(404).json({ error: "Ubicación no encontrada" });
+    await redis.set(cacheKey, JSON.stringify(location), "EX", 60);
     res.json(location);
   } catch (error) {
     res

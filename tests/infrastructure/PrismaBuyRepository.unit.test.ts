@@ -53,6 +53,12 @@ describe('PrismaBuyRepository', () => {
         expect(result).toMatchObject({ id: 3, units: 20 });
     });
 
+    it('update retorna null si no existe', async () => {
+        prisma.compra.update.mockResolvedValue(null);
+        const result = await repo.update(999, { units: 10 });
+        expect(result).toBeNull();
+    });
+
     it('findByFilter retorna paginado', async () => {
         prisma.compra.findMany.mockResolvedValue([
             { id: 4, clienteId: 5, colocacionId: 6, unidades: 7 },
@@ -61,6 +67,37 @@ describe('PrismaBuyRepository', () => {
         const result = await repo.findByFilter({ clientId: 5, page: 1, per_page: 1 });
         expect(result.total).toBe(1);
         expect(result.data[0]).toMatchObject({ clientId: 5 });
+    });
+
+    it('findByFilter retorna vacío si no hay coincidencias', async () => {
+        prisma.compra.findMany.mockResolvedValue([]);
+        prisma.compra.count.mockResolvedValue(0);
+        const result = await repo.findByFilter({ placementId: 99 });
+        expect(result.total).toBe(0);
+        expect(result.data).toEqual([]);
+    });
+
+    it('findByFilter filtra por units', async () => {
+        prisma.compra.findMany.mockResolvedValue([
+            { id: 10, clienteId: 1, colocacionId: 2, unidades: 15 },
+        ]);
+        prisma.compra.count.mockResolvedValue(1);
+        const result = await repo.findByFilter({ units: 15 });
+        expect(result.data[0]).toHaveProperty('units', 15);
+    });
+
+    it('getAll retorna vacío si no hay compras', async () => {
+        prisma.compra.findMany.mockResolvedValue([]);
+        const result = await repo.getAll({});
+        expect(result).toEqual([]);
+    });
+
+    it('getAll filtra por clientId', async () => {
+        prisma.compra.findMany.mockResolvedValue([
+            { id: 20, clienteId: 2, colocacionId: 3, unidades: 5 },
+        ]);
+        const result = await repo.getAll({ clientId: 2 });
+        expect(result[0]).toHaveProperty('clientId', 2);
     });
     ;
 

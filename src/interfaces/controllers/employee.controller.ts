@@ -1,13 +1,14 @@
 import { PrismaClient } from "@prisma/client";
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import { z } from "zod";
-import { BloodType } from "../../domain/entities/Types";
 import { Employee } from "../../domain/entities/Employee";
+import { BloodType } from "../../domain/entities/Types";
 import { CreateEmployeeUseCase } from "../../domain/usecases/Employee/CreateEmployeeUseCase";
 import { DeleteEmployeeUseCase } from "../../domain/usecases/Employee/DeleteEmployeeUseCase";
 import { GetAllEmployeesUseCase } from "../../domain/usecases/Employee/GetAllEmployeesUseCase";
 import { GetEmployeeByIdUseCase } from "../../domain/usecases/Employee/GetEmployeeByIdUseCase";
 import { UpdateEmployeeUseCase } from "../../domain/usecases/Employee/UpdateEmployeeUseCase";
+import redis from "../../infrastructure/redisClient";
 import { PrismaEmployeeRepository } from "../../infrastructure/repositories/PrismaEmployeeRepository";
 
 const employeeRepo = new PrismaEmployeeRepository(new PrismaClient());
@@ -106,13 +107,34 @@ export const deleteEmployee = async (
   }
 };
 
-export const getEmployeeById = async (req: Request, res: Response) => {
-  const result = await getEmployeeByIdUseCase.execute(Number(req.params.id));
-  if (!result) return res.status(404).send();
-  res.json(result);
+export const getEmployeeById = async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params;
+  const cacheKey = `employees:${id}`;
+  try {
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return res.json(JSON.parse(cached));
+    }
+    const result = await getEmployeeByIdUseCase.execute(Number(id));
+    if (!result) return res.status(404).send();
+    await redis.set(cacheKey, JSON.stringify(result), "EX", 60);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
 };
 
-export const getAllEmployees = async (req: Request, res: Response) => {
-  const result = await getAllEmployeesUseCase.execute(req.query);
-  res.json(result);
+export const getAllEmployees = async (req: Request, res: Response, next: NextFunction) => {
+  const cacheKey = `employees:all:${JSON.stringify(req.query)}`;
+  try {
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return res.json(JSON.parse(cached));
+    }
+    const result = await getAllEmployeesUseCase.execute(req.query);
+    await redis.set(cacheKey, JSON.stringify(result), "EX", 60);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
 };

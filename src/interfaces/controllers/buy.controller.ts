@@ -7,6 +7,7 @@ import { UpdateBuyUseCase } from "../../domain/usecases/Buy/UpdateBuyUseCase";
 import { DeleteBuyUseCase } from "../../domain/usecases/Buy/DeleteBuyUseCase";
 import { GetBuyByIdUseCase } from "../../domain/usecases/Buy/GetBuyByIdUseCase";
 import { GetAllBuysUseCase } from "../../domain/usecases/Buy/GetAllBuysUseCase";
+import redis from "../../infrastructure/redisClient";
 
 const buyRepo = new PrismaBuyRepository(new PrismaClient());
 const createBuyUseCase = new CreateBuyUseCase(buyRepo);
@@ -76,12 +77,34 @@ export const deleteBuy = async (
 };
 
 export const getBuyById = async (req: Request, res: Response) => {
-  const result = await getBuyByIdUseCase.execute(Number(req.params.id));
-  if (!result) return res.status(404).send();
-  res.json(result);
+  const { id } = req.params;
+  const cacheKey = `buys:${id}`;
+  try {
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return res.json(JSON.parse(cached));
+    }
+    const result = await getBuyByIdUseCase.execute(Number(id));
+    if (!result) return res.status(404).send();
+    await redis.set(cacheKey, JSON.stringify(result), "EX", 60);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: "Error al obtener la compra", details: error instanceof Error ? error.message : error });
+  }
 };
 
 export const getAllBuys = async (req: Request, res: Response) => {
-  const result = await getAllBuysUseCase.execute(req.query);
-  res.json(result);
+  const cacheKey = `buys:all:${JSON.stringify(req.query)}`;
+  try {
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return res.json(JSON.parse(cached));
+    }
+    const result = await getAllBuysUseCase.execute(req.query);
+    await redis.set(cacheKey, JSON.stringify(result), "EX", 60);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: "Error al obtener las compras", details: error instanceof Error ? error.message : error });
+  }
 };
+

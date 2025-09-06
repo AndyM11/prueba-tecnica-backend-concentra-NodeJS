@@ -1,14 +1,14 @@
-import { PrismaClientRepository } from "../../infrastructure/repositories/PrismaClientRepository";
-import { CreateClientUseCase } from "../../domain/usecases/Client/CreateClientUseCase";
-import { GetClientUseCase } from "../../domain/usecases/Client/GetClientUseCase";
-import { GetAllClientsUseCase } from "../../domain/usecases/Client/GetAllClientsUseCase";
-import { UpdateClientUseCase } from "../../domain/usecases/Client/UpdateClientUseCase";
-import { DeleteClientUseCase } from "../../domain/usecases/Client/DeleteClientUseCase";
-import { ClientType } from "../../domain/entities/Types";
-import { Client } from "../../domain/entities/Client";
-import { Request, Response, NextFunction } from "express";
-import { ClientFilterOptions } from "../../domain/entities/Types";
+import { NextFunction, Request, Response } from "express";
 import { z } from "zod";
+import { Client } from "../../domain/entities/Client";
+import { ClientFilterOptions, ClientType } from "../../domain/entities/Types";
+import { CreateClientUseCase } from "../../domain/usecases/Client/CreateClientUseCase";
+import { DeleteClientUseCase } from "../../domain/usecases/Client/DeleteClientUseCase";
+import { GetAllClientsUseCase } from "../../domain/usecases/Client/GetAllClientsUseCase";
+import { GetClientUseCase } from "../../domain/usecases/Client/GetClientUseCase";
+import { UpdateClientUseCase } from "../../domain/usecases/Client/UpdateClientUseCase";
+import redis from "../../infrastructure/redisClient";
+import { PrismaClientRepository } from "../../infrastructure/repositories/PrismaClientRepository";
 
 const clientRepo = new PrismaClientRepository();
 export const createClientUseCase = new CreateClientUseCase(clientRepo);
@@ -26,9 +26,17 @@ export const getClients = async (req: Request, res: Response) => {
     if (typeof clientType === "string") options.clientType = clientType;
     if (typeof page === "string") options.page = Number(page);
     if (typeof per_page === "string") options.per_page = Number(per_page);
+
+    const cacheKey = `clients:all:${JSON.stringify(options)}`;
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return res.json(JSON.parse(cached));
+    }
+
     const result = await getAllClientsUseCase.execute(
       Object.keys(options).length ? options : undefined,
     );
+    await redis.set(cacheKey, JSON.stringify(result), "EX", 60);
     res.json(result);
   } catch (error) {
     res
@@ -43,8 +51,14 @@ export const getClients = async (req: Request, res: Response) => {
 export const getClientById = async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
+    const cacheKey = `clients:${id}`;
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return res.json(JSON.parse(cached));
+    }
     const client = await getClientUseCase.execute(id);
     if (client) {
+      await redis.set(cacheKey, JSON.stringify(client), "EX", 60);
       res.json(client);
     } else {
       res.status(404).json({ mensaje: "Cliente no encontrado" });

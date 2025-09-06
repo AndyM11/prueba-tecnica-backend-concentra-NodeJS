@@ -7,6 +7,7 @@ import {
   deleteUser,
   getUserByUsername,
 } from "../controllers/user.controller";
+import { login } from "../controllers/auth.controller";
 
 const router = Router();
 
@@ -247,5 +248,90 @@ router.put("/:id", updateUser);
  *         description: Usuario no encontrado
  */
 router.delete("/:id", deleteUser);
+
+/**
+ * @swagger
+ * /api/v1/user/auth/login:
+ *   post:
+ *     tags:
+ *       - Users
+ *     summary: Iniciar sesión de usuario
+ *     description: Valida usuario y contraseña, retorna datos del usuario, datos del empleado (si aplica) y un token JWT.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: "usuario1"
+ *               password:
+ *                 type: string
+ *                 example: "contraseña123"
+ *     responses:
+ *       200:
+ *         description: Login exitoso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *                 employee:
+ *                   $ref: '#/components/schemas/Employee'
+ *                 token:
+ *                   type: string
+ *             example:
+ *               user:
+ *                 id: 1
+ *                 username: "usuario1"
+ *                 rol: "ADMIN"
+ *                 employeeId: 2
+ *               employee:
+ *                 id: 2
+ *                 name: "Juan Pérez"
+ *                 phone: "809-555-1234"
+ *               token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *       400:
+ *         description: Datos inválidos (faltan campos requeridos)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *             example:
+ *               error:
+ *                 fieldErrors:
+ *                   username: ["El usuario es requerido"]
+ *                   password: ["La contraseña es requerida"]
+ *       401:
+ *         description: Usuario o contraseña incorrectos, o contraseña no cumple política (si el usuario existe)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *             example:
+ *               error: "Usuario o contraseña incorrectos"
+ *       500:
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *             example:
+ *               error: "Error interno del servidor"
+ */
+router.post("/auth/login", login);
 
 export default router;

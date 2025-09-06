@@ -8,6 +8,7 @@ import { GetAllUsersUseCase } from "../../domain/usecases/User/GetAllUsersUseCas
 import { GetUserByIdUseCase } from "../../domain/usecases/User/GetUserByIdUseCase";
 import { GetUserByUsernameUseCase } from "../../domain/usecases/User/GetUserByUsernameUseCase";
 import { UpdateUserUseCase } from "../../domain/usecases/User/UpdateUserUseCase";
+import redis from "../../infrastructure/redisClient";
 import { PrismaUserRepository } from "../../infrastructure/repositories/PrismaUserRepository";
 
 const prisma = new PrismaClient();
@@ -54,7 +55,13 @@ const userSchema = z.object({
 
 export const getUsers = async (req: Request, res: Response) => {
   try {
+    const cacheKey = "users:all";
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return res.json(JSON.parse(cached));
+    }
     const result = await getAllUsersUseCase.execute();
+    await redis.set(cacheKey, JSON.stringify(result), "EX", 60);
     res.json(result);
   } catch (error) {
     res
@@ -72,8 +79,14 @@ export const getUserById = async (req: Request, res: Response) => {
     if (isNaN(id) || !Number.isFinite(id)) {
       return res.status(400).json({ error: "ID inválido" });
     }
+    const cacheKey = `users:${id}`;
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return res.json(JSON.parse(cached));
+    }
     const user = await getUserByIdUseCase.execute(id);
     if (user) {
+      await redis.set(cacheKey, JSON.stringify(user), "EX", 60);
       res.json(user);
     } else {
       res.status(404).json({ mensaje: "Usuario no encontrado" });
@@ -92,14 +105,12 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
   try {
     const parse = userSchema.safeParse(req.body);
     if (!parse.success) {
-      return res
-        .status(400)
-        .json({ error: "Datos inválidos", detalles: parse.error.issues });
+      return res.status(400).json({ error: parse.error.issues });
     }
     const user = await createUserUseCase.execute(parse.data);
-    res.status(201).json(user);
-  } catch (error: unknown) {
-    next(error);
+    return res.status(201).json(user);
+  } catch (error) {
+    return next(error instanceof Error ? error : new Error(String(error)));
   }
 };
 
@@ -115,14 +126,18 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
         .status(400)
         .json({ error: "Datos inválidos", detalles: parse.error.issues });
     }
-    const user = await updateUserUseCase.execute(id, parse.data);
-    if (user) {
-      res.json(user);
-    } else {
-      res.status(404).json({ mensaje: "Usuario no encontrado" });
+    try {
+      const user = await updateUserUseCase.execute(id, parse.data);
+      if (user) {
+        res.json(user);
+      } else {
+        res.status(404).json({ mensaje: "Usuario no encontrado" });
+      }
+    } catch (error) {
+      return next(error instanceof Error ? error : new Error(String(error)));
     }
-  } catch (error: unknown) {
-    next(error);
+  } catch (error) {
+    return next(error instanceof Error ? error : new Error(String(error)));
   }
 };
 

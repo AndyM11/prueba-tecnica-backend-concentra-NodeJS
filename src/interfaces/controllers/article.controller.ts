@@ -6,14 +6,15 @@ import { DeleteArticleUseCase } from "../../domain/usecases/Article/DeleteArticl
 import { GetAllArticlesUseCase } from "../../domain/usecases/Article/GetAllArticlesUseCase";
 import { GetArticleByIdUseCase } from "../../domain/usecases/Article/GetArticleByIdUseCase";
 import { UpdateArticleUseCase } from "../../domain/usecases/Article/UpdateArticleUseCase";
+import redis from "../../infrastructure/redisClient";
 import { PrismaArticleRepository } from "../../infrastructure/repositories/PrismaArticleRepository";
 
 const articleRepo = new PrismaArticleRepository();
-export const getAllArticlesUseCase = new GetAllArticlesUseCase(articleRepo); // Exportado solo para pruebas unitarias
-export const createArticleUseCase = new CreateArticleUseCase(articleRepo); // Exportado solo para pruebas unitarias
-export const getArticleByIdUseCase = new GetArticleByIdUseCase(articleRepo); // Exportado solo para pruebas unitarias
-export const updateArticleUseCase = new UpdateArticleUseCase(articleRepo); // Exportado solo para pruebas unitarias
-export const deleteArticleUseCase = new DeleteArticleUseCase(articleRepo); // Exportado solo para pruebas unitarias
+export const getAllArticlesUseCase = new GetAllArticlesUseCase(articleRepo);
+export const createArticleUseCase = new CreateArticleUseCase(articleRepo);
+export const getArticleByIdUseCase = new GetArticleByIdUseCase(articleRepo);
+export const updateArticleUseCase = new UpdateArticleUseCase(articleRepo);
+export const deleteArticleUseCase = new DeleteArticleUseCase(articleRepo);
 
 const articleSchema = z.object({
   barcode: z
@@ -26,8 +27,7 @@ const articleSchema = z.object({
 
 export const getArticles = async (req: Request, res: Response) => {
   try {
-    const { description, manufacturerId, page, per_page, barcode, stock } =
-      req.query;
+    const { description, manufacturerId, page, per_page, barcode, stock } = req.query;
     const options: ArticleFilterOptions = {};
     if (typeof description === "string") options.description = String(description);
     if (typeof manufacturerId === "string") options.manufacturerId = Number(manufacturerId);
@@ -35,17 +35,21 @@ export const getArticles = async (req: Request, res: Response) => {
     if (typeof stock === "string") options.stock = Number(stock);
     if (page !== undefined) options.page = Number(page);
     if (per_page !== undefined) options.per_page = Number(per_page);
+    const cacheKey = `articles:all:${JSON.stringify(options)}`;
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return res.json(JSON.parse(cached));
+    }
     const result = await getAllArticlesUseCase.execute(
       Object.keys(options).length ? options : undefined,
     );
+    await redis.set(cacheKey, JSON.stringify(result), "EX", 60);
     res.json(result);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        error: "Error al obtener los artículos",
-        details: error instanceof Error ? error.message : error,
-      });
+    res.status(500).json({
+      error: "Error al obtener los artículos",
+      details: error instanceof Error ? error.message : error,
+    });
   }
 };
 
@@ -74,17 +78,21 @@ export const getArticleById = async (req: Request, res: Response) => {
     if (!id || isNaN(Number(id))) {
       return res.status(400).json({ error: "ID de artículo inválido" });
     }
+    const cacheKey = `articles:${id}`;
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return res.json(JSON.parse(cached));
+    }
     const article = await getArticleByIdUseCase.execute(Number(id));
     if (!article)
       return res.status(404).json({ error: "Artículo no encontrado" });
+    await redis.set(cacheKey, JSON.stringify(article), "EX", 60);
     res.json(article);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        error: "Error al obtener el artículo",
-        details: error instanceof Error ? error.message : error,
-      });
+    res.status(500).json({
+      error: "Error al obtener el artículo",
+      details: error instanceof Error ? error.message : error,
+    });
   }
 };
 

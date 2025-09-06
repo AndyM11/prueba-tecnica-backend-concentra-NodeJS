@@ -3,6 +3,33 @@ import { PrismaClient } from '@prisma/client';
 import { ClientType } from '../../src/domain/entities/Types';
 
 describe('PrismaClientRepository', () => {
+    it('findAll sin filtros retorna todos los clientes', async () => {
+        prisma.cliente.findMany.mockResolvedValue([
+            { id: 1, nombre: 'Juan', telefono: '809-123-4567', tipoCliente: 'regular' }
+        ]);
+        prisma.cliente.count.mockResolvedValue(1);
+        const result = await repo.findAll();
+        expect(result.total).toBe(1);
+        expect(result.data[0]).toHaveProperty('name', 'Juan');
+    });
+
+    it('update retorna null si Prisma lanza error', async () => {
+        prisma.cliente.update.mockRejectedValue(new Error('Prisma error'));
+        const result = await repo.update(1, { name: 'Error' });
+        expect(result).toBeNull();
+    });
+
+    it('findAll paginación avanzada', async () => {
+        prisma.cliente.findMany.mockResolvedValue([
+            { id: 3, nombre: 'Pag3', telefono: '809-000-0000', tipoCliente: 'vip' },
+            { id: 4, nombre: 'Pag4', telefono: '809-111-1111', tipoCliente: 'regular' }
+        ]);
+        prisma.cliente.count.mockResolvedValue(4);
+        const result = await repo.findAll({ page: 2, per_page: 2 });
+        expect(result.page).toBe(2);
+        expect(result.per_page).toBe(2);
+        expect(result.data[0]).toHaveProperty('name', 'Pag3');
+    });
     type MockCliente = {
         findUnique: jest.Mock;
         findMany: jest.Mock;

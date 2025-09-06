@@ -3,3 +3,4 @@ node_modules
 .env
 .instrucciones
 /src/generated/prisma
+/coverage

@@ -2,11 +2,17 @@
   "name": "pruebatecnicaconcentra",
   "version": "1.0.0",
   "main": "index.js",
-  
   "scripts": {
     "dev": "nodemon src/interfaces/server.ts",
     "start": "ts-node src/interfaces/server.ts",
-    "test": "jest --runInBand --detectOpenHandles"
+    "test": "jest --runInBand --detectOpenHandles",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint .",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:seed": "prisma db seed"
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +27,7 @@
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "helmet": "^8.1.0",
+    "ioredis": "^5.7.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.1",
     "pg": "^8.16.3",

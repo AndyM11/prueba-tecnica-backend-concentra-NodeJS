@@ -37,16 +37,20 @@ export class PrismaUserRepository implements UserRepository {
     id: number,
     data: Partial<Omit<User, "id">>,
   ): Promise<User | null> {
-    const updated = await this.prisma.usuario.update({
-      where: { id },
-      data: {
-        username: data.username,
-        passwordHash: data.passwordHash,
-        rol: data.rol,
-        empleadoId: data.employeeId,
-      },
-    });
-    return updated ? this.toDomain(updated) : null;
+    try {
+      const updated = await this.prisma.usuario.update({
+        where: { id },
+        data: {
+          username: data.username,
+          passwordHash: data.passwordHash,
+          rol: data.rol,
+          empleadoId: data.employeeId,
+        },
+      });
+      return updated ? this.toDomain(updated) : null;
+    } catch {
+      return null;
+    }
   }
 
   async delete(id: number): Promise<void> {

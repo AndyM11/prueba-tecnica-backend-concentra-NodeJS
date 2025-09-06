@@ -1,8 +1,19 @@
+interface MockUseCase {
+    execute: (...args: unknown[]) => unknown;
+}
+interface MensajeResponse {
+    mensaje: string;
+}
 
-import request from 'supertest';
+import { PrismaClient } from '@prisma/client';
 import express from 'express';
-import clientRoutes from '../../src/interfaces/routes/client.routes';
+import request from 'supertest';
 import { ClientType } from '../../src/domain/entities/Types';
+import * as CreateClientUseCaseModule from '../../src/domain/usecases/Client/CreateClientUseCase';
+import * as DeleteClientUseCaseModule from '../../src/domain/usecases/Client/DeleteClientUseCase';
+import * as UpdateClientUseCaseModule from '../../src/domain/usecases/Client/UpdateClientUseCase';
+import redis from '../../src/infrastructure/redisClient';
+import clientRoutes from '../../src/interfaces/routes/client.routes';
 
 type ClientResponse = {
     id: number;
@@ -21,6 +32,134 @@ type ClientListResponse = {
 type ErrorResponse = { error: string; details?: unknown };
 
 describe('ClientController (unit)', () => {
+    it('should return 500 if getClients throws unexpected error', async () => {
+        jest.spyOn(redis, 'get').mockImplementationOnce(() => { throw new Error('Test error'); });
+        const res = await request(app).get('/api/v1/client');
+        expect(res.status).toBe(500);
+        expect((res.body as ErrorResponse).error).toMatch(/Error al obtener los clientes/);
+    });
+
+    it('should return 500 if getClientById throws unexpected error', async () => {
+        jest.spyOn(redis, 'get').mockImplementationOnce(() => { throw new Error('Test error'); });
+        const res = await request(app).get('/api/v1/client/1');
+        expect(res.status).toBe(500);
+        expect((res.body as ErrorResponse).error).toMatch(/Error al obtener el cliente/);
+    });
+
+    it('should call next on error in createClient', async () => {
+        class MockCreateClientUseCase {
+            constructor(_: unknown) { }
+            execute() { throw new Error('Test error'); }
+        }
+        const spy = jest.spyOn(CreateClientUseCaseModule, 'CreateClientUseCase').mockImplementation(MockCreateClientUseCase as any);
+        await request(app)
+            .post('/api/v1/client')
+            .send({ name: "Juan", phone: "809-123-4567", clientType: "regular" });
+        spy.mockRestore();
+    });
+
+    it('should call next on error in updateClient', async () => {
+        const createRes = await request(app)
+            .post('/api/v1/client')
+            .send({ name: "Test", phone: "809-111-2222", clientType: "regular" });
+        const id = (createRes.body as ClientResponse).id;
+        class MockUpdateClientUseCase {
+            constructor(_: unknown) { }
+            execute() { throw new Error('Test error'); }
+        }
+        const spy = jest.spyOn(UpdateClientUseCaseModule, 'UpdateClientUseCase').mockImplementation(MockUpdateClientUseCase as any);
+        await request(app)
+            .put(`/api/v1/client/${id}`)
+            .send({ name: "Error" });
+        spy.mockRestore();
+    });
+
+    it('should call next on error in deleteClient', async () => {
+        const createRes = await request(app)
+            .post('/api/v1/client')
+            .send({ name: "Test", phone: "809-111-3333", clientType: "regular" });
+        const id = (createRes.body as ClientResponse).id;
+        class MockDeleteClientUseCase {
+            constructor(_: unknown) { }
+            execute() { throw new Error('Test error'); }
+        }
+        const spy = jest.spyOn(DeleteClientUseCaseModule, 'DeleteClientUseCase').mockImplementation(MockDeleteClientUseCase as any);
+        await request(app)
+            .delete(`/api/v1/client/${id}`);
+        spy.mockRestore();
+    });
+
+    it('should return 400 if update body has invalid clientType', async () => {
+        const createRes = await request(app)
+            .post('/api/v1/client')
+            .send({ name: "Test", phone: "809-111-2222", clientType: "regular" });
+        const id = (createRes.body as ClientResponse).id;
+        const res = await request(app)
+            .put(`/api/v1/client/${id}`)
+            .send({ clientType: "gold" });
+        expect(res.status).toBe(400);
+        expect((res.body as ErrorResponse).error).toBe("Datos inválidos");
+    });
+    it('should reject client with invalid name but valid phone', async () => {
+        const res = await request(app)
+            .post('/api/v1/client')
+            .send({ name: "A", phone: "809-123-4567", clientType: "regular" });
+        expect(res.status).toBe(400);
+        expect((res.body as ErrorResponse).error).toBe("Datos inválidos");
+    });
+
+    it('should return 400 if update id is invalid', async () => {
+        const res = await request(app)
+            .put('/api/v1/client/abc')
+            .send({ name: "Test" });
+        expect(res.status).toBe(400);
+        expect((res.body as ErrorResponse).error).toBe("ID de cliente inválido");
+    });
+
+    it('should return 400 if update body is empty', async () => {
+        const createRes = await request(app)
+            .post('/api/v1/client')
+            .send({ name: "Test", phone: "809-111-2222", clientType: "regular" });
+        const id = (createRes.body as ClientResponse).id;
+        const res = await request(app)
+            .put(`/api/v1/client/${id}`)
+            .send({});
+        expect(res.status).toBe(400);
+        expect((res.body as ErrorResponse).error).toBe("No se proporcionaron campos para actualizar");
+    });
+
+    it('should return 400 if update body has invalid phone', async () => {
+        const createRes = await request(app)
+            .post('/api/v1/client')
+            .send({ name: "Test", phone: "809-111-3333", clientType: "regular" });
+        const id = (createRes.body as ClientResponse).id;
+        const res = await request(app)
+            .put(`/api/v1/client/${id}`)
+            .send({ phone: "123" });
+        expect(res.status).toBe(400);
+        expect((res.body as ErrorResponse).error).toBe("El teléfono tiene un formato inválido");
+    });
+
+    it('should return 404 if update client does not exist', async () => {
+        const res = await request(app)
+            .put('/api/v1/client/99999')
+            .send({ name: "NoExiste" });
+        expect(res.status).toBe(404);
+        expect((res.body as MensajeResponse).mensaje).toBe("Cliente no encontrado");
+    });
+
+    it('should return 400 if delete id is invalid', async () => {
+        const res = await request(app)
+            .delete('/api/v1/client/abc');
+        expect(res.status).toBe(400);
+        expect(res.body.error).toBe("ID de cliente inválido");
+    });
+    // Limpiar la base de datos de clientes antes de cada test
+    beforeEach(async () => {
+        const prisma = new PrismaClient();
+        await prisma.cliente.deleteMany();
+        await prisma.$disconnect();
+    });
     let app: express.Express;
 
     beforeAll(() => {
@@ -82,17 +221,21 @@ describe('ClientController (unit)', () => {
     });
 
     it('should filter clients by name', async () => {
-        await request(app)
+        // Crear ambos clientes y asegurar que se crean correctamente
+        const res1 = await request(app)
             .post('/api/v1/client')
             .send({ name: "Carlos", phone: "809-333-4444", clientType: "regular" });
-        await request(app)
+        expect(res1.status).toBe(201);
+        const res2 = await request(app)
             .post('/api/v1/client')
-            .send({ name: "Carla", phone: "829-444-5555", clientType: "vip" });
+            .send({ name: "Carla", phone: "829-555-6666", clientType: "vip" });
+        expect(res2.status).toBe(201);
+        // Filtrar
         const res = await request(app)
-            .get('/api/v1/client?name=Car')
+            .get('/api/v1/client?name=Car');
         expect(res.status).toBe(200);
         const list = res.body as ClientListResponse;
-        expect(list.data.length).toBeGreaterThanOrEqual(2);
+        expect(list.data.length).toBe(2);
         expect(list.data.some((c) => c.name.includes("Car"))).toBe(true);
     });
 

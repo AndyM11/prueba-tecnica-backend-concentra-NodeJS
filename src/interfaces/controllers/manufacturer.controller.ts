@@ -6,6 +6,7 @@ import { DeleteManufacturerUseCase } from "../../domain/usecases/Manufacturer/De
 import { GetAllManufacturersUseCase } from "../../domain/usecases/Manufacturer/GetAllManufacturersUseCase";
 import { GetManufacturerByIdUseCase } from "../../domain/usecases/Manufacturer/GetManufacturerByIdUseCase";
 import { UpdateManufacturerUseCase } from "../../domain/usecases/Manufacturer/UpdateManufacturerUseCase";
+import redis from "../../infrastructure/redisClient";
 import { PrismaManufacturerRepository } from "../../infrastructure/repositories/PrismaManufacturerRepository";
 
 const manufacturerRepo = new PrismaManufacturerRepository();
@@ -19,38 +20,16 @@ export const createManufacturerUseCase = new CreateManufacturerUseCase(
 const getManufacturerByIdUseCase = new GetManufacturerByIdUseCase(
   manufacturerRepo,
 );
-const updateManufacturerUseCase = new UpdateManufacturerUseCase(
+export const updateManufacturerUseCase = new UpdateManufacturerUseCase(
   manufacturerRepo,
 );
-const deleteManufacturerUseCase = new DeleteManufacturerUseCase(
+export const deleteManufacturerUseCase = new DeleteManufacturerUseCase(
   manufacturerRepo,
 );
 
 const manufacturerSchema = z.object({
   name: z.string().min(3, "El nombre debe tener al menos 3 caracteres"),
 });
-
-export const getManufacturers = async (req: Request, res: Response) => {
-  try {
-    const { name, page, per_page } = req.query;
-    const options: ManufacturerFilterOptions = {};
-    if (typeof name === "string") options.name = String(name);
-    if (typeof page === "string") options.page = Number(page);
-    if (typeof per_page === "string") options.per_page = Number(per_page);
-
-    const result = await getAllManufacturersUseCase.execute(
-      Object.keys(options).length ? options : undefined,
-    );
-    res.json(result);
-  } catch (error) {
-    res
-      .status(500)
-      .json({
-        error: "Error al obtener los fabricantes",
-        details: error instanceof Error ? error.message : error,
-      });
-  }
-};
 
 export const createManufacturer = async (
   req: Request,
@@ -72,15 +51,50 @@ export const createManufacturer = async (
   }
 };
 
+export const getManufacturers = async (req: Request, res: Response) => {
+  try {
+    const { name, page, per_page } = req.query;
+    const options: ManufacturerFilterOptions = {};
+    if (typeof name === "string") options.name = String(name);
+    if (typeof page === "string") options.page = Number(page);
+    if (typeof per_page === "string") options.per_page = Number(per_page);
+
+    const cacheKey = `manufacturers:all:${JSON.stringify(options)}`;
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return res.json(JSON.parse(cached));
+    }
+
+    const result = await getAllManufacturersUseCase.execute(
+      Object.keys(options).length ? options : undefined,
+    );
+    await redis.set(cacheKey, JSON.stringify(result), "EX", 60);
+    res.json(result);
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        error: "Error al obtener los fabricantes",
+        details: error instanceof Error ? error.message : error,
+      });
+  }
+};
+
 export const getManufacturerById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     if (!id || isNaN(Number(id))) {
       return res.status(400).json({ error: "ID de fabricante inválido" });
     }
+    const cacheKey = `manufacturers:${id}`;
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return res.json(JSON.parse(cached));
+    }
     const manufacturer = await getManufacturerByIdUseCase.execute(Number(id));
     if (!manufacturer)
       return res.status(404).json({ error: "Fabricante no encontrado" });
+    await redis.set(cacheKey, JSON.stringify(manufacturer), "EX", 60);
     res.json(manufacturer);
   } catch (error) {
     res
