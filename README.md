@@ -11,22 +11,9 @@ API RESTful para la gestión de una cadena de almacenes, desarrollada en Node.js
 ### 1. Clonar el repositorio
 
 ```bash
-
-
-
-
-
-git  clone  <URL_DEL_REPO>
-
-
-
-
+git  clone  https://github.com/AndyM11/prueba-tecnica-backend-concentra-NodeJS
 
 cd  <NOMBRE_DEL_REPO>
-
-
-
-
 
 ```
 
@@ -35,12 +22,7 @@ cd  <NOMBRE_DEL_REPO>
 Copia el archivo `.env.example` a `.env`:
 
 ```bash
-
-
-
 cp  .env.example  .env
-
-
 
 ```
 
@@ -48,23 +30,13 @@ Luego, edita el archivo `.env` con los valores apropiados para tu entorno. Ejemp
 
 ```
 
-
-
 DATABASE_URL=postgresql://usuario:password@localhost:5432/mi_basededatos
-
-
 
 REDIS_URL=redis://localhost:6379
 
-
-
 JWT_SECRET=alguna_clave_secreta
 
-
-
 PORT=3000
-
-
 
 ```
 
@@ -73,16 +45,7 @@ Consulta el archivo `.env.example` para ver todas las variables requeridas y su 
 ### 3. Levantar servicios con Docker
 
 ```bash
-
-
-
-
-
 docker-compose  up  -d
-
-
-
-
 
 ```
 
@@ -91,54 +54,23 @@ Esto inicia PostgreSQL y Redis.
 ### 4. Instalar dependencias
 
 ```bash
-
-
-
-
-
 npm  install
-
-
-
-
 
 ```
 
 ### 5. Ejecutar migraciones y seeds
 
 ```bash
-
-
-
-
-
 npx  prisma  migrate  dev
 
-
-
-
-
 npx  prisma  db  seed
-
-
-
-
 
 ```
 
 ### 6. Iniciar la API
 
 ```bash
-
-
-
-
-
 npm  run  dev
-
-
-
-
 
 ```
 
